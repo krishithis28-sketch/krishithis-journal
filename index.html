@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Trade Entry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base styling for dark mode UI */
+        body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        input, select { background-color: #1e293b; border: 1px solid #334155; color: white; padding: 16px; border-radius: 12px; width: 100%; font-size: 18px; margin-top: 8px; outline: none; transition: border-color 0.2s;}
+        input:focus, select:focus { border-color: #3b82f6; }
+        label { font-size: 14px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;}
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-radius: 20px; padding: 24px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Loading spinner CSS */
+        .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid white; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
+
+    <div class="w-full max-w-md glass-panel shadow-2xl">
+        <h1 class="text-3xl font-bold mb-6 text-center text-blue-400">Trade Entry</h1>
+        
+        <form id="tradeForm" class="space-y-5">
+            <div>
+                <label>Month</label>
+                <select id="month" required>
+                    <option value="Mar 2026">March 2026</option>
+                    <option value="Apr 2026">April 2026</option>
+                    <option value="May 2026">May 2026</option>
+                    <option value="Jun 2026">June 2026</option>
+                    <option value="Jul 2026">July 2026</option>
+                    <option value="Aug 2026">August 2026</option>
+                    <option value="Sep 2026">September 2026</option>
+                    <option value="Oct 2026">October 2026</option>
+                    <option value="Nov 2026">November 2026</option>
+                    <option value="Dec 2026">December 2026</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div><label>Ticker</label><input type="text" id="stock" placeholder="RELIANCE" required style="text-transform: uppercase;"></div>
+                <div>
+                    <label>Setup</label>
+                    <select id="setup" required>
+                        <option value="Breakout">Breakout</option>
+                        <option value="Support Bounce">Support Bounce</option>
+                        <option value="Moving Average">Moving Average</option>
+                        <option value="Earnings">Earnings</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div><label>Entry (₹)</label><input type="number" step="0.05" id="entry" placeholder="0.00" required></div>
+                <div><label>Qty</label><input type="number" id="qty" placeholder="10" required></div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg mt-6 transition-colors shadow-lg shadow-blue-500/30 flex justify-center items-center">
+                <span>Execute Log</span>
+            </button>
+        </form>
+        <p id="statusMsg" class="text-center mt-4 font-semibold hidden"></p>
+    </div>
+
+    <script>
+        // CONFIGURATION: Replace with Apps Script Web App URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4Y1lUZP5uBwBFn-Y9usZT1OU5rvE_1V__8nr5_qbIcIjV7zPGn2KhrGDuXIYxnDIz/exec"; 
+
+        document.getElementById('tradeForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission redirect
+            
+            const btn = document.getElementById('submitBtn');
+            const msg = document.getElementById('statusMsg');
+            
+            // UI State: Loading
+            btn.innerHTML = "<div class='spinner'></div> Processing...";
+            btn.classList.replace('bg-blue-600', 'bg-slate-600');
+            btn.classList.remove('hover:bg-blue-500');
+            btn.disabled = true;
+            msg.classList.add('hidden');
+
+            // Construct payload URL parameters
+            const params = new URLSearchParams({
+                month: document.getElementById('month').value,
+                stock: document.getElementById('stock').value.toUpperCase(),
+                setup: document.getElementById('setup').value,
+                qty: document.getElementById('qty').value,
+                entry: document.getElementById('entry').value,
+                status: 'Open'
+            });
+
+            const url = `${SCRIPT_URL}?${params.toString()}`;
+
+            // Execute GET request
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if(data.result === "success") {
+                        msg.innerText = "200 OK: Transaction Logged";
+                        msg.className = "text-center mt-4 font-semibold text-emerald-400 block";
+                        document.getElementById('tradeForm').reset();
+                    } else {
+                        throw new Error(data.message || 'Server returned an error');
+                    }
+                })
+                .catch(error => {
+                    console.error('API Error:', error);
+                    msg.innerText = `500 Error: ${error.message}`;
+                    msg.className = "text-center mt-4 font-semibold text-rose-400 block";
+                })
+                .finally(() => {
+                    // UI State: Reset
+                    btn.innerHTML = "<span>Execute Log</span>";
+                    btn.classList.replace('bg-slate-600', 'bg-blue-600');
+                    btn.classList.add('hover:bg-blue-500');
+                    btn.disabled = false;
+                    setTimeout(() => { msg.classList.add('hidden'); }, 4000);
+                });
+        });
+    </script>
+</body>
+</html>
