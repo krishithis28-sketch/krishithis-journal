@@ -121,7 +121,7 @@
                 <table class="w-full text-left border-collapse whitespace-nowrap text-sm">
                     <thead>
                         <tr class="text-[var(--text-muted)] text-[11px] uppercase tracking-wider border-b border-[var(--border-color)]">
-                            <th class="px-4 py-3 font-bold" onclick="setSort('stock')">Stock ↕</th>
+                            <th class="px-4 py-3 font-bold" onclick="setSort('stock')">Stock <span id="openCountBadge" class="text-blue-500"></span> ↕</th>
                             <th class="px-4 py-3 font-bold hidden md:table-cell" onclick="setSort('setup')">Setup ↕</th>
                             <th class="px-4 py-3 font-bold text-right" onclick="setSort('invested')">Invested ↕</th>
                             <th class="px-4 py-3 font-bold text-right">Qty x Entry</th>
@@ -304,7 +304,9 @@
                 allTrades = data.trades || [];
 
                 // --- MATH & METRICS ---
-                const totalInvestedOpen = allTrades.filter(t => t.status === 'Open').reduce((sum, t) => sum + (Number(t.invested) || 0), 0);
+                const openTrades = allTrades.filter(t => t.status === 'Open');
+                const totalInvestedOpen = openTrades.reduce((sum, t) => sum + (Number(t.invested) || 0), 0);
+                
                 const monthlySip = Number(data.sip) || 0;
                 const monthlyPnl = Number(data.pnl) || 0;
                 const availableFunds = (monthlySip + monthlyPnl) - totalInvestedOpen;
@@ -315,6 +317,10 @@
                 const globalRoi = globalSip > 0 ? (globalPnl / globalSip) : 0;
 
                 // --- DOM UPDATES ---
+                
+                // Update Open Positions Counter in Header
+                document.getElementById('openCountBadge').innerText = openTrades.length > 0 ? `(${openTrades.length})` : '';
+
                 document.getElementById('uiSip').innerText = formatMoney(monthlySip);
                 document.getElementById('inputSip').value = monthlySip;
                 
