@@ -8,7 +8,6 @@
     <title>KrishIthis Journal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom Theme Engine */
         :root {
             --bg-color: #0f172a;
             --text-main: #f8fafc;
@@ -20,7 +19,7 @@
             --input-bg: #1e293b;
         }
         [data-theme="light"] {
-            --bg-color: #e2e8f0; /* Comfortable Grey Background */
+            --bg-color: #e2e8f0; 
             --text-main: #0f172a;
             --text-muted: #64748b;
             --panel-bg: rgba(255, 255, 255, 0.95);
@@ -46,14 +45,13 @@
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Tab Navigation */
         .tab-btn { padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; transition: all 0.2s; color: var(--text-muted); }
         .tab-btn.active { background-color: #3b82f6; color: white; }
     </style>
 </head>
 <body class="p-4 md:p-6 min-h-screen flex flex-col items-center">
 
-    <div class="w-full max-w-5xl flex justify-between items-center mb-6">
+    <div class="w-full max-w-7xl flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold tracking-wide">KrishIthis<span class="text-blue-500">Journal</span></h1>
         <div class="flex items-center gap-3">
             <div id="loader" class="spinner hidden"></div>
@@ -61,15 +59,19 @@
         </div>
     </div>
 
-    <div class="w-full max-w-5xl flex gap-2 mb-6 glass-panel p-2">
+    <div class="w-full max-w-7xl flex gap-2 mb-6 glass-panel p-2">
         <button id="tabMonthly" onclick="switchTab('monthly')" class="tab-btn active flex-1">Monthly Log</button>
         <button id="tabMaster" onclick="switchTab('master')" class="tab-btn flex-1">Portfolio Summary</button>
     </div>
 
-    <div id="viewMaster" class="w-full max-w-5xl hidden space-y-4">
-        <div class="glass-panel p-8 text-center bg-gradient-to-br from-blue-600/10 to-purple-600/10">
+    <div id="viewMaster" class="w-full max-w-7xl hidden space-y-4">
+        <div class="glass-panel p-8 text-center bg-gradient-to-br from-blue-600/10 to-purple-600/10 relative">
             <p class="text-sm font-bold uppercase tracking-wider mb-2 text-[var(--text-muted)]">Total Portfolio Value</p>
-            <p class="text-4xl md:text-5xl font-extrabold text-blue-500" id="uiTotalVal">₹0.00</p>
+            <p class="text-4xl md:text-5xl font-extrabold text-blue-500 mb-2" id="uiTotalVal">₹0.00</p>
+            <div class="inline-block px-4 py-1 rounded-full bg-slate-800/50 border border-slate-700/50">
+                <span class="text-sm font-bold text-slate-300">All-Time ROI: </span>
+                <span class="text-sm font-extrabold" id="uiGlobalRoi">0.00%</span>
+            </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div class="glass-panel p-6 text-center">
@@ -83,7 +85,7 @@
         </div>
     </div>
 
-    <div id="viewMonthly" class="w-full max-w-5xl">
+    <div id="viewMonthly" class="w-full max-w-7xl">
         <div class="flex flex-col md:flex-row justify-between gap-4 mb-4">
             <select id="monthSelector" class="w-full md:w-48 font-bold !text-lg" onchange="fetchDashboardData()">
                 <option value="Mar 2026">Mar 2026</option><option value="Apr 2026">Apr 2026</option>
@@ -95,16 +97,22 @@
             <input type="text" id="searchInput" placeholder="🔍 Filter by Stock or Setup..." class="w-full md:w-64" onkeyup="renderTable()">
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="glass-panel p-4 cursor-pointer hover:border-blue-500" onclick="openSipModal()">
-                <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)] flex justify-between">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="glass-panel p-5 cursor-pointer hover:border-blue-500 transition-colors relative" onclick="openSipModal()">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)] flex justify-between">
                     Monthly SIP <span class="text-blue-500 text-sm leading-none">✎</span>
                 </p>
-                <p class="text-xl font-bold" id="uiSip">₹0.00</p>
+                <p class="text-2xl md:text-3xl font-bold" id="uiSip">₹0.00</p>
             </div>
-            <div class="glass-panel p-4">
-                <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Realized P&L</p>
-                <p class="text-xl font-bold" id="uiPnl">₹0.00</p>
+            <div class="glass-panel p-5 relative">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)] flex justify-between">
+                    Realized P&L 
+                </p>
+                <p class="text-2xl md:text-3xl font-bold" id="uiPnl">₹0.00</p>
+            </div>
+            <div class="glass-panel p-5 bg-blue-900/10">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Available Funds</p>
+                <p class="text-2xl md:text-3xl font-bold text-blue-400" id="uiAvailable">₹0.00</p>
             </div>
         </div>
 
@@ -113,13 +121,13 @@
                 <table class="w-full text-left border-collapse whitespace-nowrap text-sm">
                     <thead>
                         <tr class="text-[var(--text-muted)] text-[11px] uppercase tracking-wider border-b border-[var(--border-color)]">
-                            <th class="px-3 py-2 font-bold" onclick="setSort('stock')">Stock ↕</th>
-                            <th class="px-3 py-2 font-bold hidden md:table-cell" onclick="setSort('setup')">Setup ↕</th>
-                            <th class="px-3 py-2 font-bold text-right" onclick="setSort('invested')">Invested ↕</th>
-                            <th class="px-3 py-2 font-bold text-right">Qty x Entry</th>
-                            <th class="px-3 py-2 font-bold text-right">Exit</th>
-                            <th class="px-3 py-2 font-bold text-center" onclick="setSort('status')">Status ↕</th>
-                            <th class="px-3 py-2 font-bold text-right" onclick="setSort('pnl')">P&L ↕</th>
+                            <th class="px-4 py-3 font-bold" onclick="setSort('stock')">Stock ↕</th>
+                            <th class="px-4 py-3 font-bold hidden md:table-cell" onclick="setSort('setup')">Setup ↕</th>
+                            <th class="px-4 py-3 font-bold text-right" onclick="setSort('invested')">Invested ↕</th>
+                            <th class="px-4 py-3 font-bold text-right">Qty x Entry</th>
+                            <th class="px-4 py-3 font-bold text-right">Exit</th>
+                            <th class="px-4 py-3 font-bold text-center" onclick="setSort('status')">Status ↕</th>
+                            <th class="px-4 py-3 font-bold text-right" onclick="setSort('pnl')">P&L ↕</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -151,7 +159,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Ticker</label><input type="text" id="addStock" class="uppercase !p-2"></div>
                     <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Setup</label>
-                        <select id="addSetup" class="!p-2"><option>Breakout</option><option>Support Bounce</option><option>Moving Average</option><option>Other</option></select>
+                        <select id="addSetup" class="!p-2"><option>Breakout</option><option>Support Bounce</option><option>Moving Average</option><option>Earnings</option><option>Other</option></select>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -195,14 +203,14 @@
 
     <script>
         // --- CONFIGURATION ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnjTY8rJg9T39iae4BXLN3rucOwjVk-IxPBhnjzZ6fr9JByQ5NAWFjbzqw6H-ljSsdsQ/exec"; 
+        const SCRIPT_URL = "YOUR_GOOGLE_WEB_APP_URL_HERE"; 
         
         let allTrades = [];
         let sortCol = '';
         let sortAsc = true;
 
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
-        const pctFormatter = new Intl.NumberFormat('en-IN', { style: 'percent', minimumFractionDigits: 2 });
+        const pctFormatter = new Intl.NumberFormat('en-IN', { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const formatMoney = (val) => val ? formatter.format(val) : '-';
         const colorize = (val) => {
             if(!val) return '';
@@ -211,7 +219,6 @@
             return '';
         };
 
-        // UI Logic
         function showLoader(show) { document.getElementById('loader').style.display = show ? 'block' : 'none'; }
         function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden')); }
         
@@ -242,7 +249,6 @@
             }
         }
 
-        // Sorting & Filtering Logic
         function setSort(col) {
             if(sortCol === col) sortAsc = !sortAsc;
             else { sortCol = col; sortAsc = true; }
@@ -275,19 +281,18 @@
                 const pnlText = t.status === 'Closed' ? `${formatMoney(t.pnl)}<br><span class="text-[10px] opacity-75">${pctFormatter.format(t.pnlPct)}</span>` : '-';
 
                 row.innerHTML = `
-                    <td class="px-3 py-2 font-bold">${t.stock}</td>
-                    <td class="px-3 py-2 text-[var(--text-muted)] hidden md:table-cell text-xs">${t.setup}</td>
-                    <td class="px-3 py-2 text-right font-mono">${formatMoney(t.invested)}</td>
-                    <td class="px-3 py-2 text-right text-xs text-[var(--text-muted)]">${t.qty} @ ${t.entry}</td>
-                    <td class="px-3 py-2 text-right font-mono">${t.exit || '-'}</td>
-                    <td class="px-3 py-2 text-center">${statusBadge}</td>
-                    <td class="px-3 py-2 text-right leading-tight ${colorize(t.pnl)}">${pnlText}</td>
+                    <td class="px-4 py-3 font-bold">${t.stock}</td>
+                    <td class="px-4 py-3 text-[var(--text-muted)] hidden md:table-cell text-xs">${t.setup}</td>
+                    <td class="px-4 py-3 text-right font-mono">${formatMoney(t.invested)}</td>
+                    <td class="px-4 py-3 text-right text-xs text-[var(--text-muted)]">${t.qty} @ ${t.entry}</td>
+                    <td class="px-4 py-3 text-right font-mono">${t.exit || '-'}</td>
+                    <td class="px-4 py-3 text-center">${statusBadge}</td>
+                    <td class="px-4 py-3 text-right leading-tight ${colorize(t.pnl)}">${pnlText}</td>
                 `;
                 tbody.appendChild(row);
             });
         }
 
-        // API Fetch
         async function fetchDashboardData() {
             showLoader(true);
             const month = document.getElementById('monthSelector').value;
@@ -296,19 +301,41 @@
                 const data = await response.json();
                 if(data.error) throw new Error(data.error);
 
-                // Update Monthly Cards
-                document.getElementById('uiSip').innerText = formatMoney(data.sip || 0);
-                document.getElementById('inputSip').value = data.sip || 0;
+                allTrades = data.trades || [];
+
+                // --- MATH & METRICS ---
+                const totalInvestedOpen = allTrades.filter(t => t.status === 'Open').reduce((sum, t) => sum + (Number(t.invested) || 0), 0);
+                const monthlySip = Number(data.sip) || 0;
+                const monthlyPnl = Number(data.pnl) || 0;
+                const availableFunds = (monthlySip + monthlyPnl) - totalInvestedOpen;
+                
+                // Overall ROI Calculation
+                const globalSip = Number(data.globalSip) || 0;
+                const globalPnl = Number(data.globalPnl) || 0;
+                const globalRoi = globalSip > 0 ? (globalPnl / globalSip) : 0;
+
+                // --- DOM UPDATES ---
+                document.getElementById('uiSip').innerText = formatMoney(monthlySip);
+                document.getElementById('inputSip').value = monthlySip;
+                
                 const pnlEl = document.getElementById('uiPnl');
-                pnlEl.innerText = formatMoney(data.pnl || 0);
-                pnlEl.className = `text-xl font-bold ${colorize(data.pnl)}`;
+                pnlEl.innerText = formatMoney(monthlyPnl);
+                pnlEl.className = `text-2xl md:text-3xl font-bold ${colorize(monthlyPnl)}`;
 
-                // Update Master Dashboard Cards
-                document.getElementById('uiGlobalSip').innerText = formatMoney(data.globalSip || 0);
-                document.getElementById('uiGlobalPnl').innerText = formatMoney(data.globalPnl || 0);
-                document.getElementById('uiTotalVal').innerText = formatMoney((data.globalSip || 0) + (data.globalPnl || 0));
+                const availEl = document.getElementById('uiAvailable');
+                availEl.innerText = formatMoney(availableFunds);
+                if (availableFunds < 0) availEl.classList.replace('text-blue-400', 'text-rose-500');
+                else availEl.classList.replace('text-rose-500', 'text-blue-400');
 
-                allTrades = data.trades;
+                document.getElementById('uiGlobalSip').innerText = formatMoney(globalSip);
+                document.getElementById('uiGlobalPnl').innerText = formatMoney(globalPnl);
+                document.getElementById('uiTotalVal').innerText = formatMoney(globalSip + globalPnl);
+                
+                // Global ROI UI update
+                const roiEl = document.getElementById('uiGlobalRoi');
+                roiEl.innerText = pctFormatter.format(globalRoi);
+                roiEl.className = `text-sm font-extrabold ${colorize(globalPnl)}`;
+
                 renderTable();
 
             } catch (err) { alert("Error: " + err.message); } 
@@ -338,7 +365,6 @@
             }
         }
 
-        // Modals & Actions
         function openSipModal() { document.getElementById('sipModal').classList.remove('hidden'); }
         function saveSip() { postData({ action: 'updateSip', month: document.getElementById('monthSelector').value, sip: document.getElementById('inputSip').value }, 'btnSaveSip'); }
         function openAddModal() { document.getElementById('addStock').value = ''; document.getElementById('addEntry').value = ''; document.getElementById('addQty').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
@@ -347,7 +373,6 @@
         function saveTradeUpdate() { postData({ action: 'updateTrade', month: document.getElementById('monthSelector').value, row: document.getElementById('editRow').value, status: document.getElementById('editStatus').value, exit: document.getElementById('editExit').value }, 'btnUpdateTrade'); }
         function deleteTrade() { if(confirm("Delete this trade?")) postData({ action: 'deleteTrade', month: document.getElementById('monthSelector').value, row: document.getElementById('editRow').value }, 'btnDeleteTrade'); }
 
-        // Initialize
         document.getElementById('monthSelector').value = "Mar 2026";
         fetchDashboardData();
     </script>
