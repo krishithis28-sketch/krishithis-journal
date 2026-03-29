@@ -17,7 +17,7 @@
         input:focus, select:focus { border-color: #3b82f6; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -69,8 +69,7 @@
                         <th class="p-4 font-semibold text-right">P&L</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody">
-                    </tbody>
+                <tbody id="tableBody"></tbody>
             </table>
         </div>
         <div class="p-4 border-t border-slate-700">
@@ -87,7 +86,7 @@
             <input type="number" id="inputSip" placeholder="60000" class="mb-6">
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold">Cancel</button>
-                <button onclick="saveSip()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Save</button>
+                <button id="btnSaveSip" onclick="saveSip()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold transition-all">Save</button>
             </div>
         </div>
     </div>
@@ -111,15 +110,24 @@
             </div>
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold">Cancel</button>
-                <button onclick="saveNewTrade()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Execute</button>
+                <button id="btnAddTrade" onclick="saveNewTrade()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold transition-all">Execute</button>
             </div>
         </div>
     </div>
 
     <div id="editModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
-            <h2 class="text-xl font-bold mb-1" id="editHeader">Manage Trade</h2>
-            <p class="text-sm text-slate-400 mb-5 border-b border-slate-700 pb-3" id="editSubtext"></p>
+            
+            <div class="flex justify-between items-start mb-5 border-b border-slate-700 pb-3">
+                <div>
+                    <h2 class="text-xl font-bold mb-1" id="editHeader">Manage Trade</h2>
+                    <p class="text-sm text-slate-400" id="editSubtext"></p>
+                </div>
+                <button id="btnDeleteTrade" onclick="deleteTrade()" class="text-rose-500 hover:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-2 rounded-lg text-sm font-bold transition-colors">
+                    Delete
+                </button>
+            </div>
+
             <input type="hidden" id="editRow">
             <div class="space-y-4 mb-6">
                 <div>
@@ -136,19 +144,18 @@
             </div>
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold">Cancel</button>
-                <button onclick="saveTradeUpdate()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold">Update Trade</button>
+                <button id="btnUpdateTrade" onclick="saveTradeUpdate()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold transition-all">Update</button>
             </div>
         </div>
     </div>
 
     <script>
         // --- CONFIGURATION ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOM7-Wnv6TUNh1ilqCKJrdk6WYU3HewXeo7CUhsEfp5IVtHT1Z4Ktkm8MC3UtJjTkOjg/exec"; 
+        const SCRIPT_URL = "YOUR_GOOGLE_WEB_APP_URL_HERE"; 
         
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
         const pctFormatter = new Intl.NumberFormat('en-IN', { style: 'percent', minimumFractionDigits: 2 });
 
-        // Utility: Format cells
         const formatMoney = (val) => val ? formatter.format(val) : '-';
         const colorize = (val) => {
             if(!val) return '';
@@ -174,10 +181,8 @@
             try {
                 const response = await fetch(`${SCRIPT_URL}?month=${encodeURIComponent(month)}`);
                 const data = await response.json();
-                
                 if(data.error) throw new Error(data.error);
 
-                // Update UI Cards
                 document.getElementById('uiSip').innerText = formatMoney(data.sip || 0);
                 document.getElementById('inputSip').value = data.sip || 0;
                 
@@ -185,7 +190,6 @@
                 pnlEl.innerText = formatMoney(data.pnl || 0);
                 pnlEl.className = `text-2xl md:text-3xl font-bold ${colorize(data.pnl)}`;
 
-                // Build Table
                 const tbody = document.getElementById('tableBody');
                 tbody.innerHTML = '';
                 
@@ -219,20 +223,40 @@
             }
         }
 
-        async function postData(payload) {
+        // NEW: Anti-Bounce Wrapper for API Calls
+        async function postData(payload, btnId) {
+            const btn = document.getElementById(btnId);
+            let originalHTML = "";
+            
+            // Disable button and show spinner
+            if (btn) {
+                originalHTML = btn.innerHTML;
+                btn.innerHTML = `<div class="spinner border-t-white"></div>`;
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            
             showLoader(true);
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(payload),
-                    headers: { 'Content-Type': 'text/plain' } // Bypasses CORS preflight
+                    headers: { 'Content-Type': 'text/plain' } 
                 });
                 const data = await response.json();
                 if(data.error) throw new Error(data.error);
+                
                 closeModals();
-                fetchDashboardData(); // Refresh UI
+                fetchDashboardData(); 
             } catch (err) {
                 alert("Action failed: " + err.message);
+            } finally {
+                // Restore button state
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
                 showLoader(false);
             }
         }
@@ -240,7 +264,7 @@
         // --- MODAL TRIGGERS ---
 
         function openSipModal() { document.getElementById('sipModal').classList.remove('hidden'); }
-        function saveSip() { postData({ action: 'updateSip', month: document.getElementById('monthSelector').value, sip: document.getElementById('inputSip').value }); }
+        function saveSip() { postData({ action: 'updateSip', month: document.getElementById('monthSelector').value, sip: document.getElementById('inputSip').value }, 'btnSaveSip'); }
 
         function openAddModal() {
             document.getElementById('addStock').value = '';
@@ -256,7 +280,7 @@
                 setup: document.getElementById('addSetup').value,
                 entry: document.getElementById('addEntry').value,
                 qty: document.getElementById('addQty').value
-            });
+            }, 'btnAddTrade');
         }
 
         function openEditModal(trade) {
@@ -267,6 +291,7 @@
             document.getElementById('editExit').value = trade.exit || '';
             document.getElementById('editModal').classList.remove('hidden');
         }
+        
         function saveTradeUpdate() {
             postData({
                 action: 'updateTrade',
@@ -274,7 +299,17 @@
                 row: document.getElementById('editRow').value,
                 status: document.getElementById('editStatus').value,
                 exit: document.getElementById('editExit').value
-            });
+            }, 'btnUpdateTrade');
+        }
+
+        function deleteTrade() {
+            if(confirm("Delete this trade? This will permanently clear the row data.")) {
+                postData({
+                    action: 'deleteTrade',
+                    month: document.getElementById('monthSelector').value,
+                    row: document.getElementById('editRow').value
+                }, 'btnDeleteTrade');
+            }
         }
 
         // Initialize: Mar 2026 loaded by default
