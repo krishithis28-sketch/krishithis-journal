@@ -133,14 +133,16 @@
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
-            <div class="p-3 border-t border-[var(--border-color)] flex gap-3">
-                <button onclick="openAddModal()" class="flex-1 py-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-dashed border-blue-500/50 rounded-lg font-bold transition-colors">
+            
+            <div class="p-3 border-t border-[var(--border-color)] flex items-center gap-3">
+                <button onclick="openAddModal()" class="flex-1 py-3 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-dashed border-blue-500/50 rounded-lg font-bold transition-colors">
                     + Add Trade
                 </button>
-                <button id="btnRollover" onclick="rolloverTrades()" class="flex-1 py-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-500 border border-dashed border-purple-500/50 rounded-lg font-bold transition-colors">
-                    ⏩ Rollover Open Trades
+                <button id="btnRollover" onclick="rolloverTrades()" class="px-4 py-3 text-[var(--text-muted)] bg-[var(--input-bg)] hover:bg-[var(--row-hover)] border border-[var(--border-color)] rounded-lg text-xs font-bold transition-colors whitespace-nowrap" title="Copy Open Trades to Next Month">
+                    ⏩ Rollover
                 </button>
             </div>
+            
         </div>
     </div>
 
@@ -366,7 +368,6 @@
                 const data = await response.json();
                 if(data.error) throw new Error(data.error);
                 
-                // If it was a rollover, alert the user of success
                 if(payload.action === 'rollover' && data.message) {
                     alert(data.message);
                 }
@@ -380,7 +381,6 @@
             }
         }
 
-        // Action Functions
         function openSipModal() { document.getElementById('sipModal').classList.remove('hidden'); }
         function saveSip() { postData({ action: 'updateSip', month: document.getElementById('monthSelector').value, sip: document.getElementById('inputSip').value }, 'btnSaveSip'); }
         function openAddModal() { document.getElementById('addStock').value = ''; document.getElementById('addEntry').value = ''; document.getElementById('addQty').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
@@ -389,7 +389,6 @@
         function saveTradeUpdate() { postData({ action: 'updateTrade', month: document.getElementById('monthSelector').value, row: document.getElementById('editRow').value, status: document.getElementById('editStatus').value, exit: document.getElementById('editExit').value }, 'btnUpdateTrade'); }
         function deleteTrade() { if(confirm("Delete this trade?")) postData({ action: 'deleteTrade', month: document.getElementById('monthSelector').value, row: document.getElementById('editRow').value }, 'btnDeleteTrade'); }
         
-        // NEW: Rollover Function
         function rolloverTrades() {
             const currentMonth = document.getElementById('monthSelector').value;
             if(confirm(`Scan [${currentMonth}] for 'Open' trades and COPY them to the next month?\n\nThe originals will remain untouched.`)) {
