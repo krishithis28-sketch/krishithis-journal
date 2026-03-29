@@ -5,127 +5,282 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Trade Entry</title>
+    <title>Trading Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Base styling for dark mode UI */
-        body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        input, select { background-color: #1e293b; border: 1px solid #334155; color: white; padding: 16px; border-radius: 12px; width: 100%; font-size: 18px; margin-top: 8px; outline: none; transition: border-color 0.2s;}
+        body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; }
+        .table-row { transition: background-color 0.2s; cursor: pointer; border-bottom: 1px solid #334155; }
+        .table-row:hover { background-color: #1e293b; }
+        .modal-overlay { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }
+        input, select { background-color: #0f172a; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px; width: 100%; font-size: 16px; outline: none; margin-top: 4px;}
         input:focus, select:focus { border-color: #3b82f6; }
-        label { font-size: 14px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;}
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-radius: 20px; padding: 24px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        
-        /* Loading spinner CSS */
-        .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid white; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px;}
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
+<body class="p-4 md:p-6 min-h-screen flex flex-col items-center">
 
-    <div class="w-full max-w-md glass-panel shadow-2xl">
-        <h1 class="text-3xl font-bold mb-6 text-center text-blue-400">Trade Entry</h1>
-        
-        <form id="tradeForm" class="space-y-5">
-            <div>
-                <label>Month</label>
-                <select id="month" required>
-                    <option value="Mar 2026">March 2026</option>
-                    <option value="Apr 2026">April 2026</option>
-                    <option value="May 2026">May 2026</option>
-                    <option value="Jun 2026">June 2026</option>
-                    <option value="Jul 2026">July 2026</option>
-                    <option value="Aug 2026">August 2026</option>
-                    <option value="Sep 2026">September 2026</option>
-                    <option value="Oct 2026">October 2026</option>
-                    <option value="Nov 2026">November 2026</option>
-                    <option value="Dec 2026">December 2026</option>
-                </select>
+    <div class="w-full max-w-5xl flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-white tracking-wide">Trading<span class="text-blue-500">Journal</span></h1>
+        <div class="flex items-center gap-4">
+            <div id="loader" class="spinner hidden"></div>
+            <select id="monthSelector" class="w-36 !mt-0 !bg-slate-800 !border-slate-600 font-semibold" onchange="fetchDashboardData()">
+                <option value="Mar 2026">Mar 2026</option>
+                <option value="Apr 2026">Apr 2026</option>
+                <option value="May 2026">May 2026</option>
+                <option value="Jun 2026">Jun 2026</option>
+                <option value="Jul 2026">Jul 2026</option>
+                <option value="Aug 2026">Aug 2026</option>
+                <option value="Sep 2026">Sep 2026</option>
+                <option value="Oct 2026">Oct 2026</option>
+                <option value="Nov 2026">Nov 2026</option>
+                <option value="Dec 2026">Dec 2026</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="w-full max-w-5xl grid grid-cols-2 gap-4 mb-6">
+        <div class="glass-panel p-5 cursor-pointer hover:border-blue-500 transition-colors" onclick="openSipModal()">
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
+                Monthly SIP Added <span class="text-blue-400 text-lg">✎</span>
+            </p>
+            <p class="text-2xl md:text-3xl font-bold" id="uiSip">₹0.00</p>
+        </div>
+        <div class="glass-panel p-5">
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Realized P&L</p>
+            <p class="text-2xl md:text-3xl font-bold" id="uiPnl">₹0.00</p>
+        </div>
+    </div>
+
+    <div class="w-full max-w-5xl glass-panel overflow-hidden">
+        <div class="overflow-x-auto hide-scroll">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
+                <thead>
+                    <tr class="bg-slate-800/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700">
+                        <th class="p-4 font-semibold">Stock</th>
+                        <th class="p-4 font-semibold hidden md:table-cell">Setup</th>
+                        <th class="p-4 font-semibold text-right">Invested</th>
+                        <th class="p-4 font-semibold text-right">Qty x Entry</th>
+                        <th class="p-4 font-semibold text-right">Exit Price</th>
+                        <th class="p-4 font-semibold text-center">Status</th>
+                        <th class="p-4 font-semibold text-right">P&L</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    </tbody>
+            </table>
+        </div>
+        <div class="p-4 border-t border-slate-700">
+            <button onclick="openAddModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-dashed border-slate-600 rounded-xl text-slate-300 font-semibold transition-colors flex items-center justify-center gap-2">
+                <span class="text-xl">+</span> Add New Trade
+            </button>
+        </div>
+    </div>
+
+    <div id="sipModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+            <h2 class="text-xl font-bold mb-4">Update Monthly SIP</h2>
+            <label class="text-xs text-slate-400 uppercase font-bold">Amount (₹)</label>
+            <input type="number" id="inputSip" placeholder="60000" class="mb-6">
+            <div class="flex gap-3">
+                <button onclick="closeModals()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold">Cancel</button>
+                <button onclick="saveSip()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Save</button>
             </div>
+        </div>
+    </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div><label>Ticker</label><input type="text" id="stock" placeholder="RELIANCE" required style="text-transform: uppercase;"></div>
-                <div>
-                    <label>Setup</label>
-                    <select id="setup" required>
-                        <option value="Breakout">Breakout</option>
-                        <option value="Support Bounce">Support Bounce</option>
-                        <option value="Moving Average">Moving Average</option>
-                        <option value="Earnings">Earnings</option>
-                        <option value="Other">Other</option>
-                    </select>
+    <div id="addModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+            <h2 class="text-xl font-bold mb-4">Log New Trade</h2>
+            <div class="space-y-4 mb-6">
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-xs text-slate-400 uppercase font-bold">Ticker</label><input type="text" id="addStock" placeholder="RELIANCE" class="uppercase"></div>
+                    <div><label class="text-xs text-slate-400 uppercase font-bold">Setup</label>
+                        <select id="addSetup">
+                            <option>Breakout</option><option>Support Bounce</option><option>Moving Average</option><option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-xs text-slate-400 uppercase font-bold">Entry (₹)</label><input type="number" step="0.05" id="addEntry" placeholder="0.00"></div>
+                    <div><label class="text-xs text-slate-400 uppercase font-bold">Quantity</label><input type="number" id="addQty" placeholder="10"></div>
                 </div>
             </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div><label>Entry (₹)</label><input type="number" step="0.05" id="entry" placeholder="0.00" required></div>
-                <div><label>Qty</label><input type="number" id="qty" placeholder="10" required></div>
+            <div class="flex gap-3">
+                <button onclick="closeModals()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold">Cancel</button>
+                <button onclick="saveNewTrade()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Execute</button>
             </div>
+        </div>
+    </div>
 
-            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg mt-6 transition-colors shadow-lg shadow-blue-500/30 flex justify-center items-center">
-                <span>Execute Log</span>
-            </button>
-        </form>
-        <p id="statusMsg" class="text-center mt-4 font-semibold hidden"></p>
+    <div id="editModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+            <h2 class="text-xl font-bold mb-1" id="editHeader">Manage Trade</h2>
+            <p class="text-sm text-slate-400 mb-5 border-b border-slate-700 pb-3" id="editSubtext"></p>
+            <input type="hidden" id="editRow">
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="text-xs text-slate-400 uppercase font-bold">Status</label>
+                    <select id="editStatus">
+                        <option value="Open">Open</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 uppercase font-bold">Exit Price (₹)</label>
+                    <input type="number" step="0.05" id="editExit" placeholder="Leave blank if open">
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeModals()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold">Cancel</button>
+                <button onclick="saveTradeUpdate()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold">Update Trade</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // CONFIGURATION: Replace with Apps Script Web App URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4Y1lUZP5uBwBFn-Y9usZT1OU5rvE_1V__8nr5_qbIcIjV7zPGn2KhrGDuXIYxnDIz/exec"; 
+        // --- CONFIGURATION ---
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOM7-Wnv6TUNh1ilqCKJrdk6WYU3HewXeo7CUhsEfp5IVtHT1Z4Ktkm8MC3UtJjTkOjg/exec"; 
+        
+        const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
+        const pctFormatter = new Intl.NumberFormat('en-IN', { style: 'percent', minimumFractionDigits: 2 });
 
-        document.getElementById('tradeForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent default form submission redirect
+        // Utility: Format cells
+        const formatMoney = (val) => val ? formatter.format(val) : '-';
+        const colorize = (val) => {
+            if(!val) return '';
+            if(val > 0) return 'text-emerald-400 font-semibold';
+            if(val < 0) return 'text-rose-400 font-semibold';
+            return '';
+        };
+
+        function showLoader(show) { document.getElementById('loader').style.display = show ? 'block' : 'none'; }
+        
+        function closeModals() {
+            document.getElementById('sipModal').classList.add('hidden');
+            document.getElementById('addModal').classList.add('hidden');
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        // --- CORE API FUNCTIONS ---
+
+        async function fetchDashboardData() {
+            showLoader(true);
+            const month = document.getElementById('monthSelector').value;
             
-            const btn = document.getElementById('submitBtn');
-            const msg = document.getElementById('statusMsg');
-            
-            // UI State: Loading
-            btn.innerHTML = "<div class='spinner'></div> Processing...";
-            btn.classList.replace('bg-blue-600', 'bg-slate-600');
-            btn.classList.remove('hover:bg-blue-500');
-            btn.disabled = true;
-            msg.classList.add('hidden');
+            try {
+                const response = await fetch(`${SCRIPT_URL}?month=${encodeURIComponent(month)}`);
+                const data = await response.json();
+                
+                if(data.error) throw new Error(data.error);
 
-            // Construct payload URL parameters
-            const params = new URLSearchParams({
-                month: document.getElementById('month').value,
-                stock: document.getElementById('stock').value.toUpperCase(),
-                setup: document.getElementById('setup').value,
-                qty: document.getElementById('qty').value,
-                entry: document.getElementById('entry').value,
-                status: 'Open'
-            });
+                // Update UI Cards
+                document.getElementById('uiSip').innerText = formatMoney(data.sip || 0);
+                document.getElementById('inputSip').value = data.sip || 0;
+                
+                const pnlEl = document.getElementById('uiPnl');
+                pnlEl.innerText = formatMoney(data.pnl || 0);
+                pnlEl.className = `text-2xl md:text-3xl font-bold ${colorize(data.pnl)}`;
 
-            const url = `${SCRIPT_URL}?${params.toString()}`;
+                // Build Table
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+                
+                data.trades.forEach(t => {
+                    const row = document.createElement('tr');
+                    row.className = 'table-row';
+                    row.onclick = () => openEditModal(t);
+                    
+                    const statusBadge = t.status === 'Open' 
+                        ? `<span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs font-bold uppercase">Open</span>`
+                        : `<span class="bg-slate-700 text-slate-300 px-2 py-1 rounded text-xs font-bold uppercase">Closed</span>`;
 
-            // Execute GET request
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    if(data.result === "success") {
-                        msg.innerText = "200 OK: Transaction Logged";
-                        msg.className = "text-center mt-4 font-semibold text-emerald-400 block";
-                        document.getElementById('tradeForm').reset();
-                    } else {
-                        throw new Error(data.message || 'Server returned an error');
-                    }
-                })
-                .catch(error => {
-                    console.error('API Error:', error);
-                    msg.innerText = `500 Error: ${error.message}`;
-                    msg.className = "text-center mt-4 font-semibold text-rose-400 block";
-                })
-                .finally(() => {
-                    // UI State: Reset
-                    btn.innerHTML = "<span>Execute Log</span>";
-                    btn.classList.replace('bg-slate-600', 'bg-blue-600');
-                    btn.classList.add('hover:bg-blue-500');
-                    btn.disabled = false;
-                    setTimeout(() => { msg.classList.add('hidden'); }, 4000);
+                    const pnlText = t.status === 'Closed' ? `${formatMoney(t.pnl)}<br><span class="text-xs opacity-75">${pctFormatter.format(t.pnlPct)}</span>` : '-';
+
+                    row.innerHTML = `
+                        <td class="p-4 font-bold text-white">${t.stock}</td>
+                        <td class="p-4 text-slate-400 hidden md:table-cell text-sm">${t.setup}</td>
+                        <td class="p-4 text-right font-mono text-slate-300">${formatMoney(t.invested)}</td>
+                        <td class="p-4 text-right text-sm text-slate-400">${t.qty} @ ${t.entry}</td>
+                        <td class="p-4 text-right font-mono text-slate-300">${t.exit || '-'}</td>
+                        <td class="p-4 text-center">${statusBadge}</td>
+                        <td class="p-4 text-right ${colorize(t.pnl)}">${pnlText}</td>
+                    `;
+                    tbody.appendChild(row);
                 });
-        });
+
+            } catch (err) {
+                alert("Error loading dashboard: " + err.message);
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        async function postData(payload) {
+            showLoader(true);
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain' } // Bypasses CORS preflight
+                });
+                const data = await response.json();
+                if(data.error) throw new Error(data.error);
+                closeModals();
+                fetchDashboardData(); // Refresh UI
+            } catch (err) {
+                alert("Action failed: " + err.message);
+                showLoader(false);
+            }
+        }
+
+        // --- MODAL TRIGGERS ---
+
+        function openSipModal() { document.getElementById('sipModal').classList.remove('hidden'); }
+        function saveSip() { postData({ action: 'updateSip', month: document.getElementById('monthSelector').value, sip: document.getElementById('inputSip').value }); }
+
+        function openAddModal() {
+            document.getElementById('addStock').value = '';
+            document.getElementById('addEntry').value = '';
+            document.getElementById('addQty').value = '';
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+        function saveNewTrade() {
+            postData({
+                action: 'addTrade',
+                month: document.getElementById('monthSelector').value,
+                stock: document.getElementById('addStock').value,
+                setup: document.getElementById('addSetup').value,
+                entry: document.getElementById('addEntry').value,
+                qty: document.getElementById('addQty').value
+            });
+        }
+
+        function openEditModal(trade) {
+            document.getElementById('editHeader').innerText = trade.stock;
+            document.getElementById('editSubtext').innerText = `Qty: ${trade.qty} | Entry: ₹${trade.entry}`;
+            document.getElementById('editRow').value = trade.row;
+            document.getElementById('editStatus').value = trade.status;
+            document.getElementById('editExit').value = trade.exit || '';
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+        function saveTradeUpdate() {
+            postData({
+                action: 'updateTrade',
+                month: document.getElementById('monthSelector').value,
+                row: document.getElementById('editRow').value,
+                status: document.getElementById('editStatus').value,
+                exit: document.getElementById('editExit').value
+            });
+        }
+
+        // Initialize: Mar 2026 loaded by default
+        document.getElementById('monthSelector').value = "Mar 2026";
+        fetchDashboardData();
+
     </script>
 </body>
 </html>
