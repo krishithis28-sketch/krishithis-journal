@@ -17,7 +17,6 @@
             --row-hover: rgba(255,255,255,0.05);
             --th-bg: rgba(0,0,0,0.2);
             --input-bg: #1e293b;
-            /* Dark Mode Badge Styling */
             --badge-bg: rgba(30, 41, 59, 0.6);
             --badge-border: rgba(255,255,255,0.1);
             --badge-text: #cbd5e1;
@@ -31,7 +30,6 @@
             --row-hover: rgba(0,0,0,0.03);
             --th-bg: rgba(0,0,0,0.05);
             --input-bg: #f8fafc;
-            /* Light Mode Badge Styling */
             --badge-bg: rgba(255, 255, 255, 0.9);
             --badge-border: rgba(0,0,0,0.2);
             --badge-text: #475569;
@@ -150,7 +148,6 @@
                     ⏩ Rollover
                 </button>
             </div>
-            
         </div>
     </div>
 
@@ -189,6 +186,7 @@
 
     <div id="editModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
         <div class="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+            
             <div class="flex justify-between items-start mb-4 border-b border-[var(--border-color)] pb-3">
                 <div>
                     <h2 class="text-xl font-bold mb-1" id="editHeader">Manage Trade</h2>
@@ -196,8 +194,19 @@
                 </div>
                 <button id="btnDeleteTrade" onclick="deleteTrade()" class="text-rose-500 bg-rose-500/10 px-3 py-1.5 rounded-lg text-xs font-bold">Delete</button>
             </div>
+            
             <input type="hidden" id="editRow">
-            <div class="space-y-3 mb-6">
+            
+            <div class="mb-4">
+                <label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Action Type</label>
+                <select id="editActionType" class="!p-2 border-blue-500/50" onchange="toggleEditFields()">
+                    <option value="fullExit">Full Exit / Change Status</option>
+                    <option value="addMore">Add More Shares (Average Entry)</option>
+                    <option value="partialSell">Partial Sell (Book Profit/Loss)</option>
+                </select>
+            </div>
+
+            <div id="fieldsFullExit" class="space-y-3 mb-6">
                 <div>
                     <label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Status</label>
                     <select id="editStatus" class="!p-2"><option value="Open">Open</option><option value="Closed">Closed</option></select>
@@ -207,16 +216,30 @@
                     <input type="number" step="0.05" id="editExit" placeholder="Leave blank if open" class="!p-2">
                 </div>
             </div>
+
+            <div id="fieldsPartial" class="space-y-3 mb-6 hidden">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label id="lblActionQty" class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Shares</label>
+                        <input type="number" id="editActionQty" class="!p-2" placeholder="0">
+                    </div>
+                    <div>
+                        <label id="lblActionPrice" class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Price (₹)</label>
+                        <input type="number" step="0.05" id="editActionPrice" class="!p-2" placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="flex-1 py-3 bg-slate-500/20 rounded-xl font-bold">Cancel</button>
-                <button id="btnUpdateTrade" onclick="saveTradeUpdate()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold">Update</button>
+                <button id="btnUpdateTrade" onclick="saveTradeUpdate()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold">Execute Update</button>
             </div>
         </div>
     </div>
 
     <script>
         // --- CONFIGURATION ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZAW88w1OBDpY99HjIJdXnVh8PxgGAHfYvGSn2vK4cuujZ9cnfFMzGT1mvZNsNe3Ri6Q/exec"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx19YpuhBh5BUWCoeoyIegRQOnDh2poZetNU3MuVlt5rq7MUFt5rxi5vZBDNOjbHkbxqw/exec"; 
         
         let allTrades = [];
         let sortCol = '';
@@ -238,13 +261,8 @@
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('themeIcon');
-            if (body.getAttribute('data-theme') === 'light') {
-                body.removeAttribute('data-theme');
-                icon.innerText = '☀️';
-            } else {
-                body.setAttribute('data-theme', 'light');
-                icon.innerText = '🌙';
-            }
+            if (body.getAttribute('data-theme') === 'light') { body.removeAttribute('data-theme'); icon.innerText = '☀️'; } 
+            else { body.setAttribute('data-theme', 'light'); icon.innerText = '🌙'; }
         }
 
         function switchTab(tab) {
@@ -253,18 +271,12 @@
             document.getElementById('viewMonthly').classList.add('hidden');
             document.getElementById('viewMaster').classList.add('hidden');
             
-            if(tab === 'monthly') {
-                document.getElementById('tabMonthly').classList.add('active');
-                document.getElementById('viewMonthly').classList.remove('hidden');
-            } else {
-                document.getElementById('tabMaster').classList.add('active');
-                document.getElementById('viewMaster').classList.remove('hidden');
-            }
+            if(tab === 'monthly') { document.getElementById('tabMonthly').classList.add('active'); document.getElementById('viewMonthly').classList.remove('hidden'); } 
+            else { document.getElementById('tabMaster').classList.add('active'); document.getElementById('viewMaster').classList.remove('hidden'); }
         }
 
         function setSort(col) {
-            if(sortCol === col) sortAsc = !sortAsc;
-            else { sortCol = col; sortAsc = true; }
+            if(sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
             renderTable();
         }
 
@@ -315,15 +327,12 @@
                 if(data.error) throw new Error(data.error);
 
                 allTrades = data.trades || [];
-
-                // NEW: Default Sorting (Open trades pinned to top)
                 allTrades.sort((a, b) => {
                     if (a.status === 'Open' && b.status !== 'Open') return -1;
                     if (a.status !== 'Open' && b.status === 'Open') return 1;
                     return 0;
                 });
 
-                // --- MATH & METRICS ---
                 const openTrades = allTrades.filter(t => t.status === 'Open');
                 const totalInvestedOpen = openTrades.reduce((sum, t) => sum + (Number(t.invested) || 0), 0);
                 
@@ -331,16 +340,11 @@
                 const monthlyPnl = Number(data.pnl) || 0;
                 const availableFunds = (monthlySip + monthlyPnl) - totalInvestedOpen;
                 
-                // Overall ROI Calculation
                 const globalSip = Number(data.globalSip) || 0;
                 const globalPnl = Number(data.globalPnl) || 0;
                 const globalRoi = globalSip > 0 ? (globalPnl / globalSip) : 0;
 
-                // --- DOM UPDATES ---
-                
-                // Update Open Positions Counter in Header
                 document.getElementById('openCountBadge').innerText = openTrades.length > 0 ? `(${openTrades.length})` : '';
-
                 document.getElementById('uiSip').innerText = formatMoney(monthlySip);
                 document.getElementById('inputSip').value = monthlySip;
                 
@@ -357,7 +361,6 @@
                 document.getElementById('uiGlobalPnl').innerText = formatMoney(globalPnl);
                 document.getElementById('uiTotalVal').innerText = formatMoney(globalSip + globalPnl);
                 
-                // Global ROI UI update
                 const roiEl = document.getElementById('uiGlobalRoi');
                 roiEl.innerText = pctFormatter.format(globalRoi);
                 roiEl.className = `text-sm font-extrabold ${colorize(globalPnl)}`;
@@ -383,9 +386,7 @@
                 const data = await response.json();
                 if(data.error) throw new Error(data.error);
                 
-                if(payload.action === 'rollover' && data.message) {
-                    alert(data.message);
-                }
+                if(payload.action === 'rollover' && data.message) alert(data.message);
 
                 closeModals();
                 fetchDashboardData(); 
@@ -396,14 +397,76 @@
             }
         }
 
+        // --- NEW: Toggle Logic for Edit Modal ---
+        function toggleEditFields() {
+            const action = document.getElementById('editActionType').value;
+            const fullExitFields = document.getElementById('fieldsFullExit');
+            const partialFields = document.getElementById('fieldsPartial');
+            const lblQty = document.getElementById('lblActionQty');
+            const lblPrice = document.getElementById('lblActionPrice');
+
+            if (action === 'fullExit') {
+                fullExitFields.classList.remove('hidden');
+                partialFields.classList.add('hidden');
+            } else if (action === 'addMore') {
+                fullExitFields.classList.add('hidden');
+                partialFields.classList.remove('hidden');
+                lblQty.innerText = "Shares Bought";
+                lblPrice.innerText = "Buy Price (₹)";
+            } else if (action === 'partialSell') {
+                fullExitFields.classList.add('hidden');
+                partialFields.classList.remove('hidden');
+                lblQty.innerText = "Shares Sold";
+                lblPrice.innerText = "Sell Price (₹)";
+            }
+        }
+
+        function openEditModal(trade) { 
+            document.getElementById('editHeader').innerText = trade.stock; 
+            document.getElementById('editSubtext').innerText = `Current Qty: ${trade.qty} | Avg Entry: ₹${trade.entry}`; 
+            document.getElementById('editRow').value = trade.row; 
+            
+            // Reset modal to Full Exit by default
+            document.getElementById('editActionType').value = 'fullExit';
+            toggleEditFields();
+
+            document.getElementById('editStatus').value = trade.status; 
+            document.getElementById('editExit').value = trade.exit || ''; 
+            document.getElementById('editActionQty').value = '';
+            document.getElementById('editActionPrice').value = '';
+
+            document.getElementById('editModal').classList.remove('hidden'); 
+        }
+
+        function saveTradeUpdate() { 
+            const actionType = document.getElementById('editActionType').value;
+            
+            let payload = {
+                action: 'updateTrade', 
+                month: document.getElementById('monthSelector').value, 
+                row: document.getElementById('editRow').value,
+                updateType: actionType
+            };
+
+            if (actionType === 'fullExit') {
+                payload.status = document.getElementById('editStatus').value;
+                payload.exit = document.getElementById('editExit').value;
+            } else {
+                payload.tradeQty = document.getElementById('editActionQty').value;
+                payload.tradePrice = document.getElementById('editActionPrice').value;
+                if (!payload.tradeQty || !payload.tradePrice) {
+                    alert("Please enter both Shares and Price.");
+                    return;
+                }
+            }
+            postData(payload, 'btnUpdateTrade'); 
+        }
+
         function openSipModal() { document.getElementById('sipModal').classList.remove('hidden'); }
         function saveSip() { postData({ action: 'updateSip', month: document.getElementById('monthSelector').value, sip: document.getElementById('inputSip').value }, 'btnSaveSip'); }
         function openAddModal() { document.getElementById('addStock').value = ''; document.getElementById('addEntry').value = ''; document.getElementById('addQty').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
         function saveNewTrade() { postData({ action: 'addTrade', month: document.getElementById('monthSelector').value, stock: document.getElementById('addStock').value, setup: document.getElementById('addSetup').value, entry: document.getElementById('addEntry').value, qty: document.getElementById('addQty').value }, 'btnAddTrade'); }
-        function openEditModal(trade) { document.getElementById('editHeader').innerText = trade.stock; document.getElementById('editSubtext').innerText = `Qty: ${trade.qty} | Entry: ₹${trade.entry}`; document.getElementById('editRow').value = trade.row; document.getElementById('editStatus').value = trade.status; document.getElementById('editExit').value = trade.exit || ''; document.getElementById('editModal').classList.remove('hidden'); }
-        function saveTradeUpdate() { postData({ action: 'updateTrade', month: document.getElementById('monthSelector').value, row: document.getElementById('editRow').value, status: document.getElementById('editStatus').value, exit: document.getElementById('editExit').value }, 'btnUpdateTrade'); }
         function deleteTrade() { if(confirm("Delete this trade?")) postData({ action: 'deleteTrade', month: document.getElementById('monthSelector').value, row: document.getElementById('editRow').value }, 'btnDeleteTrade'); }
-        
         function rolloverTrades() {
             const currentMonth = document.getElementById('monthSelector').value;
             if(confirm(`Scan [${currentMonth}] for 'Open' trades and COPY them to the next month?\n\nThe originals will remain untouched.`)) {
