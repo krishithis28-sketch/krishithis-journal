@@ -217,7 +217,6 @@
             const totalInvestedOpen = openTrades.reduce((s, t) => s + (Number(t.qty) * Number(t.entry_price)), 0);
             const monthlyPnl = allTrades.filter(t => t.status === 'Closed').reduce((s, t) => s + (Number(t.exit_price) - Number(t.entry_price)) * Number(t.qty), 0);
             
-            // MATH FIX: Available Funds uses Global Cash minus current Open Trades
             const available = (Number(gSip) + Number(gPnl)) - totalInvestedOpen;
 
             document.getElementById('openCountBadge').innerText = openTrades.length ? `(${openTrades.length})` : '';
@@ -247,9 +246,28 @@
             
             if(sortCol) {
                 filtered.sort((a, b) => {
-                    let valA = a[sortCol] || '';
-                    let valB = b[sortCol] || '';
-                    if(typeof valA === 'string') return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    let valA, valB;
+                    
+                    // FIXED Dynamic Sorting Logic
+                    if (sortCol === 'invested') {
+                        valA = Number(a.qty) * Number(a.entry_price);
+                        valB = Number(b.qty) * Number(b.entry_price);
+                    } else if (sortCol === 'pnl') {
+                        valA = a.status === 'Closed' ? (Number(a.exit_price) - Number(a.entry_price)) * Number(a.qty) : null;
+                        valB = b.status === 'Closed' ? (Number(b.exit_price) - Number(b.entry_price)) * Number(b.qty) : null;
+                        
+                        // Push 'Open' trades (null P&L) to the bottom regardless of sort order
+                        if (valA === null && valB === null) return 0;
+                        if (valA === null) return 1;
+                        if (valB === null) return -1;
+                    } else {
+                        valA = a[sortCol] || '';
+                        valB = b[sortCol] || '';
+                    }
+
+                    if(typeof valA === 'string' && typeof valB === 'string') {
+                        return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    }
                     return sortAsc ? valA - valB : valB - valA;
                 });
             } else {
