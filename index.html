@@ -172,7 +172,9 @@
         // --- SUPABASE CONFIGURATION ---
         const SUPABASE_URL = "https://csksswotuhopqlfqilgg.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_a6--vkPhS3EjVF8DYQMUPQ_HQ1bwDIm";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // FIX: Changed variable name to db to avoid colliding with the global 'supabase' library
+        const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTrades = [];
         let sortCol = ''; let sortAsc = true;
@@ -192,17 +194,14 @@
             showLoader(true);
 
             try {
-                // Fetch SIP
-                const { data: sipData } = await supabase.from('monthly_sip').select('sip_amount').eq('month', m).maybeSingle();
+                const { data: sipData } = await db.from('monthly_sip').select('sip_amount').eq('month', m).maybeSingle();
                 const monthlySip = sipData?.sip_amount || 0;
 
-                // Fetch Current Month Trades
-                const { data: monthTrades } = await supabase.from('trades').select('*').eq('month', m);
+                const { data: monthTrades } = await db.from('trades').select('*').eq('month', m);
                 allTrades = monthTrades || [];
 
-                // Fetch Global Stats
-                const { data: allStats } = await supabase.from('trades').select('qty, entry_price, exit_price, status');
-                const { data: sipStats } = await supabase.from('monthly_sip').select('sip_amount');
+                const { data: allStats } = await db.from('trades').select('qty, entry_price, exit_price, status');
+                const { data: sipStats } = await db.from('monthly_sip').select('sip_amount');
                 
                 const globalSip = (sipStats || []).reduce((s, x) => s + Number(x.sip_amount), 0);
                 const globalPnl = (allStats || []).filter(x => x.status === 'Closed').reduce((s, x) => s + (Number(x.exit_price) - Number(x.entry_price)) * Number(x.qty), 0);
@@ -255,7 +254,6 @@
                     return sortAsc ? valA - valB : valB - valA;
                 });
             } else {
-                // Default sorting: Open first
                 filtered.sort((a,b) => a.status === 'Open' ? -1 : 1);
             }
 
@@ -286,7 +284,7 @@
             showLoader(true);
             const m = document.getElementById('monthSelector').value; 
             const s = document.getElementById('inputSip').value; 
-            await supabase.from('monthly_sip').upsert({ month: m, sip_amount: s }); 
+            await db.from('monthly_sip').upsert({ month: m, sip_amount: s }); 
             closeModals(); 
             fetchDashboardData(); 
         }
@@ -301,7 +299,7 @@
                 entry_price: document.getElementById('addEntry').value, 
                 status: 'Open' 
             }; 
-            await supabase.from('trades').insert(payload); 
+            await db.from('trades').insert(payload); 
             closeModals(); 
             fetchDashboardData(); 
         }
@@ -309,7 +307,7 @@
         async function deleteTrade() { 
             if(confirm("Delete this trade forever?")) { 
                 showLoader(true);
-                await supabase.from('trades').delete().eq('id', document.getElementById('editId').value); 
+                await db.from('trades').delete().eq('id', document.getElementById('editId').value); 
                 closeModals(); 
                 fetchDashboardData(); 
             } 
@@ -325,7 +323,7 @@
                 if (type === 'fullExit') {
                     const status = document.getElementById('editStatus').value;
                     const exit = document.getElementById('editExit').value;
-                    await supabase.from('trades').update({ status: status, exit_price: exit ? exit : null }).eq('id', id);
+                    await db.from('trades').update({ status: status, exit_price: exit ? exit : null }).eq('id', id);
                 } else if (type === 'addMore') {
                     const t = allTrades.find(x => x.id == id);
                     const addedQty = Number(document.getElementById('editActionQty').value);
@@ -335,7 +333,7 @@
                     
                     const nQty = Number(t.qty) + addedQty;
                     const nEntry = ((t.qty * t.entry_price) + (addedQty * addedPrice)) / nQty;
-                    await supabase.from('trades').update({ qty: nQty, entry_price: nEntry }).eq('id', id);
+                    await db.from('trades').update({ qty: nQty, entry_price: nEntry }).eq('id', id);
                 } else if (type === 'partialSell') {
                     const t = allTrades.find(x => x.id == id);
                     const sQty = Number(document.getElementById('editActionQty').value);
@@ -344,13 +342,10 @@
                     if(!sQty || !sPrice) { alert("Please enter both shares and price."); showLoader(false); return; }
                     
                     if(sQty >= t.qty) {
-                        // Sold everything
-                        await supabase.from('trades').update({ status: 'Closed', exit_price: sPrice }).eq('id', id);
+                        await db.from('trades').update({ status: 'Closed', exit_price: sPrice }).eq('id', id);
                     } else {
-                        // Reduce current open amount
-                        await supabase.from('trades').update({ qty: t.qty - sQty }).eq('id', id);
-                        // Create closed record
-                        await supabase.from('trades').insert({ month, stock: t.stock, setup: t.setup, qty: sQty, entry_price: t.entry_price, exit_price: sPrice, status: 'Closed' });
+                        await db.from('trades').update({ qty: t.qty - sQty }).eq('id', id);
+                        await db.from('trades').insert({ month, stock: t.stock, setup: t.setup, qty: sQty, entry_price: t.entry_price, exit_price: sPrice, status: 'Closed' });
                     }
                 }
                 closeModals(); 
@@ -383,7 +378,6 @@
                     return;
                 }
 
-                // Prepare new rows
                 const newRows = openTrades.map(t => ({
                     month: nextMonth,
                     stock: t.stock,
@@ -393,10 +387,9 @@
                     status: 'Open'
                 }));
 
-                await supabase.from('trades').insert(newRows);
+                await db.from('trades').insert(newRows);
                 alert(`Successfully rolled over ${newRows.length} trades to ${nextMonth}!`);
                 
-                // Automatically switch view to next month
                 select.selectedIndex = currentIndex + 1;
                 fetchDashboardData();
             }
@@ -438,7 +431,6 @@
         }
         function openSipModal() { document.getElementById('sipModal').classList.remove('hidden'); }
         
-        // Initialize
         document.getElementById('monthSelector').value = "Mar 2026";
         fetchDashboardData();
     </script>
