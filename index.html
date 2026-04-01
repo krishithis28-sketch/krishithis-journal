@@ -7,50 +7,23 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>KrishIthis Journal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --panel-bg: rgba(30, 41, 59, 0.8);
-            --border-color: rgba(255,255,255,0.05);
-            --row-hover: rgba(255,255,255,0.05);
-            --th-bg: rgba(0,0,0,0.2);
-            --input-bg: #1e293b;
-            --badge-bg: rgba(30, 41, 59, 0.6);
-            --badge-border: rgba(255,255,255,0.1);
-            --badge-text: #cbd5e1;
-        }
-        [data-theme="light"] {
-            --bg-color: #e2e8f0; 
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --panel-bg: rgba(255, 255, 255, 0.95);
-            --border-color: rgba(0,0,0,0.1);
-            --row-hover: rgba(0,0,0,0.03);
-            --th-bg: rgba(0,0,0,0.05);
-            --input-bg: #f8fafc;
-            --badge-bg: rgba(255, 255, 255, 0.9);
-            --badge-border: rgba(0,0,0,0.2);
-            --badge-text: #475569;
-        }
-
+        :root { --bg-color: #0f172a; --text-main: #f8fafc; --text-muted: #94a3b8; --panel-bg: rgba(30, 41, 59, 0.8); --border-color: rgba(255,255,255,0.05); --row-hover: rgba(255,255,255,0.05); --th-bg: rgba(0,0,0,0.2); --input-bg: #1e293b; --badge-bg: rgba(30, 41, 59, 0.6); --badge-border: rgba(255,255,255,0.1); --badge-text: #cbd5e1; }
+        [data-theme="light"] { --bg-color: #e2e8f0; --text-main: #0f172a; --text-muted: #64748b; --panel-bg: rgba(255, 255, 255, 0.95); --border-color: rgba(0,0,0,0.1); --row-hover: rgba(0,0,0,0.03); --th-bg: rgba(0,0,0,0.05); --input-bg: #f8fafc; --badge-bg: rgba(255, 255, 255, 0.9); --badge-border: rgba(0,0,0,0.2); --badge-text: #475569; }
         body { background-color: var(--bg-color); color: var(--text-main); font-family: -apple-system, sans-serif; transition: background-color 0.3s, color 0.3s; -webkit-tap-highlight-color: transparent; }
         .glass-panel { background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; transition: all 0.3s;}
         .table-row { transition: background-color 0.2s; cursor: pointer; border-bottom: 1px solid var(--border-color); }
         .table-row:hover { background-color: var(--row-hover); }
         th { background-color: var(--th-bg); cursor: pointer; user-select: none; transition: background-color 0.2s; }
         th:hover { background-color: var(--row-hover); }
-        
         input, select { background-color: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 8px; width: 100%; font-size: 15px; outline: none; margin-top: 4px; transition: all 0.3s;}
         input:focus, select:focus { border-color: #3b82f6; }
-        
         .modal-overlay { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
         .tab-btn { padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; transition: all 0.2s; color: var(--text-muted); }
         .tab-btn.active { background-color: #3b82f6; color: white; }
     </style>
@@ -80,14 +53,8 @@
             </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
-            <div class="glass-panel p-6 text-center">
-                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative SIP Added</p>
-                <p class="text-2xl font-bold" id="uiGlobalSip">₹0.00</p>
-            </div>
-            <div class="glass-panel p-6 text-center">
-                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative Realized P&L</p>
-                <p class="text-2xl font-bold" id="uiGlobalPnl">₹0.00</p>
-            </div>
+            <div class="glass-panel p-6 text-center"><p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative SIP Added</p><p class="text-2xl font-bold" id="uiGlobalSip">₹0.00</p></div>
+            <div class="glass-panel p-6 text-center"><p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative Realized P&L</p><p class="text-2xl font-bold" id="uiGlobalPnl">₹0.00</p></div>
         </div>
     </div>
 
@@ -100,20 +67,16 @@
                 <option value="Sep 2026">Sep 2026</option><option value="Oct 2026">Oct 2026</option>
                 <option value="Nov 2026">Nov 2026</option><option value="Dec 2026">Dec 2026</option>
             </select>
-            <input type="text" id="searchInput" placeholder="🔍 Filter by Stock or Setup..." class="w-full md:w-64" onkeyup="renderTable()">
+            <input type="text" id="searchInput" placeholder="🔍 Filter by Stock..." class="w-full md:w-64" onkeyup="renderTable()">
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="glass-panel p-5 cursor-pointer hover:border-blue-500 transition-colors relative" onclick="openSipModal()">
-                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)] flex justify-between">
-                    Monthly SIP <span class="text-blue-500 text-sm leading-none">✎</span>
-                </p>
+            <div class="glass-panel p-5 cursor-pointer hover:border-blue-500 transition-colors" onclick="openSipModal()">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)] flex justify-between">Monthly SIP ✎</p>
                 <p class="text-2xl md:text-3xl font-bold" id="uiSip">₹0.00</p>
             </div>
-            <div class="glass-panel p-5 relative">
-                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)] flex justify-between">
-                    Realized P&L 
-                </p>
+            <div class="glass-panel p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Realized P&L</p>
                 <p class="text-2xl md:text-3xl font-bold" id="uiPnl">₹0.00</p>
             </div>
             <div class="glass-panel p-5 bg-blue-900/10">
@@ -139,14 +102,9 @@
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
-            
             <div class="p-3 border-t border-[var(--border-color)] flex items-center gap-3">
-                <button onclick="openAddModal()" class="flex-1 py-3 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-dashed border-blue-500/50 rounded-lg font-bold transition-colors">
-                    + Add Trade
-                </button>
-                <button id="btnRollover" onclick="rolloverTrades()" class="px-4 py-3 text-[var(--text-muted)] bg-[var(--input-bg)] hover:bg-[var(--row-hover)] border border-[var(--border-color)] rounded-lg text-xs font-bold transition-colors whitespace-nowrap" title="Copy Open Trades to Next Month">
-                    ⏩ Rollover
-                </button>
+                <button onclick="openAddModal()" class="flex-1 py-3 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-dashed border-blue-500/50 rounded-lg font-bold transition-colors">+ Add Trade</button>
+                <button id="btnRollover" onclick="rolloverTrades()" class="px-4 py-3 text-[var(--text-muted)] bg-[var(--input-bg)] border border-[var(--border-color)] rounded-lg text-xs font-bold transition-colors whitespace-nowrap">⏩ Rollover</button>
             </div>
         </div>
     </div>
@@ -154,10 +112,10 @@
     <div id="sipModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
         <div class="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-sm rounded-2xl p-6 shadow-2xl">
             <h2 class="text-xl font-bold mb-4">Update Monthly SIP</h2>
-            <input type="number" id="inputSip" placeholder="60000" class="mb-6 !p-3">
+            <input type="number" id="inputSip" class="mb-6 !p-3">
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="flex-1 py-3 bg-slate-500/20 rounded-xl font-bold">Cancel</button>
-                <button id="btnSaveSip" onclick="saveSip()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Save</button>
+                <button onclick="saveSip()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Save</button>
             </div>
         </div>
     </div>
@@ -168,9 +126,7 @@
             <div class="space-y-3 mb-6">
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Ticker</label><input type="text" id="addStock" class="uppercase !p-2"></div>
-                    <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Setup</label>
-                        <select id="addSetup" class="!p-2"><option>Breakout</option><option>Support Bounce</option><option>Moving Average</option><option>Earnings</option><option>Other</option></select>
-                    </div>
+                    <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Setup</label><select id="addSetup" class="!p-2"><option>Breakout</option><option>Support Bounce</option><option>Moving Average</option><option>Earnings</option><option>Other</option></select></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Entry (₹)</label><input type="number" step="0.05" id="addEntry" class="!p-2"></div>
@@ -179,110 +135,117 @@
             </div>
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="flex-1 py-3 bg-slate-500/20 rounded-xl font-bold">Cancel</button>
-                <button id="btnAddTrade" onclick="saveNewTrade()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Execute</button>
+                <button onclick="saveNewTrade()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Execute</button>
             </div>
         </div>
     </div>
 
     <div id="editModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
         <div class="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-sm rounded-2xl p-6 shadow-2xl">
-            
             <div class="flex justify-between items-start mb-4 border-b border-[var(--border-color)] pb-3">
-                <div>
-                    <h2 class="text-xl font-bold mb-1" id="editHeader">Manage Trade</h2>
-                    <p class="text-xs text-[var(--text-muted)]" id="editSubtext"></p>
-                </div>
-                <button id="btnDeleteTrade" onclick="deleteTrade()" class="text-rose-500 bg-rose-500/10 px-3 py-1.5 rounded-lg text-xs font-bold">Delete</button>
+                <div><h2 class="text-xl font-bold mb-1" id="editHeader">Manage Trade</h2><p class="text-xs text-[var(--text-muted)]" id="editSubtext"></p></div>
+                <button onclick="deleteTrade()" class="text-rose-500 bg-rose-500/10 px-3 py-1.5 rounded-lg text-xs font-bold">Delete</button>
             </div>
-            
-            <input type="hidden" id="editRow">
-            
+            <input type="hidden" id="editId">
             <div class="mb-4">
-                <label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Action Type</label>
-                <select id="editActionType" class="!p-2 border-blue-500/50" onchange="toggleEditFields()">
-                    <option value="fullExit">Full Exit / Change Status</option>
-                    <option value="addMore">Add More Shares (Average Entry)</option>
-                    <option value="partialSell">Partial Sell (Book Profit/Loss)</option>
-                </select>
+                <label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Action</label>
+                <select id="editActionType" class="!p-2 border-blue-500/50" onchange="toggleEditFields()"><option value="fullExit">Full Exit / Change Status</option><option value="addMore">Add More Shares</option><option value="partialSell">Partial Sell</option></select>
             </div>
-
             <div id="fieldsFullExit" class="space-y-3 mb-6">
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Status</label>
-                    <select id="editStatus" class="!p-2"><option value="Open">Open</option><option value="Closed">Closed</option></select>
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Exit Price (₹)</label>
-                    <input type="number" step="0.05" id="editExit" placeholder="Leave blank if open" class="!p-2">
-                </div>
+                <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Status</label><select id="editStatus" class="!p-2"><option value="Open">Open</option><option value="Closed">Closed</option></select></div>
+                <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Exit Price (₹)</label><input type="number" step="0.05" id="editExit" class="!p-2"></div>
             </div>
-
             <div id="fieldsPartial" class="space-y-3 mb-6 hidden">
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label id="lblActionQty" class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Shares</label>
-                        <input type="number" id="editActionQty" class="!p-2" placeholder="0">
-                    </div>
-                    <div>
-                        <label id="lblActionPrice" class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Price (₹)</label>
-                        <input type="number" step="0.05" id="editActionPrice" class="!p-2" placeholder="0.00">
-                    </div>
+                    <div><label id="lblActionQty" class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Shares</label><input type="number" id="editActionQty" class="!p-2"></div>
+                    <div><label id="lblActionPrice" class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Price (₹)</label><input type="number" step="0.05" id="editActionPrice" class="!p-2"></div>
                 </div>
             </div>
-
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="flex-1 py-3 bg-slate-500/20 rounded-xl font-bold">Cancel</button>
-                <button id="btnUpdateTrade" onclick="saveTradeUpdate()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold">Execute Update</button>
+                <button onclick="saveTradeUpdate()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold">Update</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzMIUMkyqI-9FyHtDYoxUARCYBqPe6vyjp2gYJA3VBby_rkGaO71K4cFrPcnUTaMvzgaw/exec"; 
-        
+        // --- SUPABASE CONFIGURATION ---
+        const SUPABASE_URL = "https://csksswotuhopqlfqilgg.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_a6--vkPhS3EjVF8DYQMUPQ_HQ1bwDIm";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         let allTrades = [];
-        let sortCol = '';
-        let sortAsc = true;
-
+        let sortCol = ''; let sortAsc = true;
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
-        const pctFormatter = new Intl.NumberFormat('en-IN', { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const formatMoney = (val) => val ? formatter.format(val) : '-';
-        const colorize = (val) => {
-            if(!val) return '';
-            if(val > 0) return 'text-emerald-500 font-bold';
-            if(val < 0) return 'text-rose-500 font-bold';
-            return '';
-        };
+        const pctFormatter = new Intl.NumberFormat('en-IN', { style: 'percent', minimumFractionDigits: 2 });
+        const formatMoney = (v) => v ? formatter.format(v) : '-';
+        const colorize = (v) => v > 0 ? 'text-emerald-500 font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
 
-        function showLoader(show) { document.getElementById('loader').style.display = show ? 'block' : 'none'; }
+        function showLoader(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; }
         function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden')); }
-        
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('themeIcon');
-            if (body.getAttribute('data-theme') === 'light') { body.removeAttribute('data-theme'); icon.innerText = '☀️'; } 
-            else { body.setAttribute('data-theme', 'light'); icon.innerText = '🌙'; }
-        }
+        function toggleTheme() { const b = document.body; const i = document.getElementById('themeIcon'); if (b.getAttribute('data-theme') === 'light') { b.removeAttribute('data-theme'); i.innerText = '☀️'; } else { b.setAttribute('data-theme', 'light'); i.innerText = '🌙'; } }
+        function switchTab(t) { document.getElementById('tabMonthly').classList.remove('active'); document.getElementById('tabMaster').classList.remove('active'); document.getElementById('viewMonthly').classList.add('hidden'); document.getElementById('viewMaster').classList.add('hidden'); if(t === 'monthly') { document.getElementById('tabMonthly').classList.add('active'); document.getElementById('viewMonthly').classList.remove('hidden'); } else { document.getElementById('tabMaster').classList.add('active'); document.getElementById('viewMaster').classList.remove('hidden'); } }
+        function setSort(c) { if(sortCol === c) sortAsc = !sortAsc; else { sortCol = c; sortAsc = true; } renderTable(); }
 
-        function switchTab(tab) {
-            document.getElementById('tabMonthly').classList.remove('active');
-            document.getElementById('tabMaster').classList.remove('active');
-            document.getElementById('viewMonthly').classList.add('hidden');
-            document.getElementById('viewMaster').classList.add('hidden');
+        async function fetchDashboardData() {
+            const m = document.getElementById('monthSelector').value;
+            showLoader(true);
+
+            try {
+                // Fetch SIP
+                const { data: sipData } = await supabase.from('monthly_sip').select('sip_amount').eq('month', m).maybeSingle();
+                const monthlySip = sipData?.sip_amount || 0;
+
+                // Fetch Current Month Trades
+                const { data: monthTrades } = await supabase.from('trades').select('*').eq('month', m);
+                allTrades = monthTrades || [];
+
+                // Fetch Global Stats
+                const { data: allStats } = await supabase.from('trades').select('qty, entry_price, exit_price, status');
+                const { data: sipStats } = await supabase.from('monthly_sip').select('sip_amount');
+                
+                const globalSip = (sipStats || []).reduce((s, x) => s + Number(x.sip_amount), 0);
+                const globalPnl = (allStats || []).filter(x => x.status === 'Closed').reduce((s, x) => s + (Number(x.exit_price) - Number(x.entry_price)) * Number(x.qty), 0);
+                
+                renderUI(monthlySip, globalSip, globalPnl);
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                alert("Could not load data. Please check connection.");
+            }
             
-            if(tab === 'monthly') { document.getElementById('tabMonthly').classList.add('active'); document.getElementById('viewMonthly').classList.remove('hidden'); } 
-            else { document.getElementById('tabMaster').classList.add('active'); document.getElementById('viewMaster').classList.remove('hidden'); }
+            showLoader(false);
         }
 
-        function setSort(col) {
-            if(sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+        function renderUI(mSip, gSip, gPnl) {
+            const openTrades = allTrades.filter(t => t.status === 'Open');
+            const totalInvestedOpen = openTrades.reduce((s, t) => s + (Number(t.qty) * Number(t.entry_price)), 0);
+            const monthlyPnl = allTrades.filter(t => t.status === 'Closed').reduce((s, t) => s + (Number(t.exit_price) - Number(t.entry_price)) * Number(t.qty), 0);
+            const available = (Number(mSip) + monthlyPnl) - totalInvestedOpen;
+
+            document.getElementById('openCountBadge').innerText = openTrades.length ? `(${openTrades.length})` : '';
+            document.getElementById('uiSip').innerText = formatMoney(mSip);
+            document.getElementById('inputSip').value = mSip;
+            
+            document.getElementById('uiPnl').innerText = formatMoney(monthlyPnl);
+            document.getElementById('uiPnl').className = `text-2xl md:text-3xl font-bold ${colorize(monthlyPnl)}`;
+            
+            document.getElementById('uiAvailable').innerText = formatMoney(available);
+            if (available < 0) document.getElementById('uiAvailable').className = 'text-2xl md:text-3xl font-bold text-rose-500';
+            else document.getElementById('uiAvailable').className = 'text-2xl md:text-3xl font-bold text-blue-400';
+
+            document.getElementById('uiGlobalSip').innerText = formatMoney(gSip);
+            document.getElementById('uiGlobalPnl').innerText = formatMoney(gPnl);
+            document.getElementById('uiTotalVal').innerText = formatMoney(gSip + gPnl);
+            
+            document.getElementById('uiGlobalRoi').innerText = pctFormatter.format(gSip > 0 ? gPnl / gSip : 0);
+            document.getElementById('uiGlobalRoi').className = `text-sm font-extrabold ${colorize(gPnl)}`;
+            
             renderTable();
         }
 
         function renderTable() {
-            const filterText = document.getElementById('searchInput').value.toUpperCase();
-            let filtered = allTrades.filter(t => t.stock.includes(filterText) || t.setup.toUpperCase().includes(filterText));
+            const f = document.getElementById('searchInput').value.toUpperCase();
+            let filtered = allTrades.filter(t => t.stock.includes(f));
             
             if(sortCol) {
                 filtered.sort((a, b) => {
@@ -291,186 +254,191 @@
                     if(typeof valA === 'string') return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
                     return sortAsc ? valA - valB : valB - valA;
                 });
+            } else {
+                // Default sorting: Open first
+                filtered.sort((a,b) => a.status === 'Open' ? -1 : 1);
             }
 
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             filtered.forEach(t => {
-                const row = document.createElement('tr');
-                row.className = 'table-row';
-                row.onclick = () => openEditModal(t);
+                const tr = document.createElement('tr'); tr.className = 'table-row'; tr.onclick = () => openEditModal(t);
                 
-                const statusBadge = t.status === 'Open' 
-                    ? `<span class="bg-blue-500/20 text-blue-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Open</span>`
-                    : `<span class="bg-[var(--th-bg)] text-[var(--text-muted)] px-2 py-0.5 rounded text-[10px] font-bold uppercase">Closed</span>`;
-                const pnlText = t.status === 'Closed' ? `${formatMoney(t.pnl)}<br><span class="text-[10px] opacity-75">${pctFormatter.format(t.pnlPct)}</span>` : '-';
-
-                // FIXED: .toFixed(2) added for Entry and Exit prices to prevent long decimals
-                const formattedEntry = t.entry ? Number(t.entry).toFixed(2) : '-';
-                const formattedExit = t.exit ? Number(t.exit).toFixed(2) : '-';
-
-                row.innerHTML = `
+                const pnlValue = t.status === 'Closed' ? (t.exit_price - t.entry_price) * t.qty : null;
+                const pnlPct = pnlValue ? pnlValue / (t.qty * t.entry_price) : null;
+                
+                const statusBadge = t.status === 'Open' ? `<span class="bg-blue-500/20 text-blue-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Open</span>` : `<span class="bg-[var(--th-bg)] text-[var(--text-muted)] px-2 py-0.5 rounded text-[10px] font-bold uppercase">Closed</span>`;
+                
+                tr.innerHTML = `
                     <td class="px-4 py-3 font-bold">${t.stock}</td>
-                    <td class="px-4 py-3 text-[var(--text-muted)] hidden md:table-cell text-xs">${t.setup}</td>
-                    <td class="px-4 py-3 text-right font-mono">${formatMoney(t.invested)}</td>
-                    <td class="px-4 py-3 text-right text-xs text-[var(--text-muted)]">${t.qty} @ ${formattedEntry}</td>
-                    <td class="px-4 py-3 text-right font-mono">${formattedExit}</td>
+                    <td class="px-4 py-3 text-[var(--text-muted)] hidden md:table-cell text-xs">${t.setup || '-'}</td>
+                    <td class="px-4 py-3 text-right font-mono">${formatMoney(t.qty * t.entry_price)}</td>
+                    <td class="px-4 py-3 text-right text-xs text-[var(--text-muted)]">${t.qty} @ ${Number(t.entry_price).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-right font-mono">${t.exit_price ? Number(t.exit_price).toFixed(2) : '-'}</td>
                     <td class="px-4 py-3 text-center">${statusBadge}</td>
-                    <td class="px-4 py-3 text-right leading-tight ${colorize(t.pnl)}">${pnlText}</td>
+                    <td class="px-4 py-3 text-right leading-tight ${colorize(pnlValue)}">${pnlValue ? formatMoney(pnlValue) + '<br><span class="text-[10px] opacity-75">' + pctFormatter.format(pnlPct) + '</span>' : '-'}</td>
                 `;
-                tbody.appendChild(row);
+                tbody.appendChild(tr);
             });
         }
 
-        async function fetchDashboardData() {
+        async function saveSip() { 
             showLoader(true);
-            const month = document.getElementById('monthSelector').value;
-            try {
-                const response = await fetch(`${SCRIPT_URL}?month=${encodeURIComponent(month)}`);
-                const data = await response.json();
-                if(data.error) throw new Error(data.error);
-
-                allTrades = data.trades || [];
-                allTrades.sort((a, b) => {
-                    if (a.status === 'Open' && b.status !== 'Open') return -1;
-                    if (a.status !== 'Open' && b.status === 'Open') return 1;
-                    return 0;
-                });
-
-                const openTrades = allTrades.filter(t => t.status === 'Open');
-                const totalInvestedOpen = openTrades.reduce((sum, t) => sum + (Number(t.invested) || 0), 0);
-                
-                const monthlySip = Number(data.sip) || 0;
-                const monthlyPnl = Number(data.pnl) || 0;
-                const availableFunds = (monthlySip + monthlyPnl) - totalInvestedOpen;
-                
-                const globalSip = Number(data.globalSip) || 0;
-                const globalPnl = Number(data.globalPnl) || 0;
-                const globalRoi = globalSip > 0 ? (globalPnl / globalSip) : 0;
-
-                document.getElementById('openCountBadge').innerText = openTrades.length > 0 ? `(${openTrades.length})` : '';
-                document.getElementById('uiSip').innerText = formatMoney(monthlySip);
-                document.getElementById('inputSip').value = monthlySip;
-                
-                const pnlEl = document.getElementById('uiPnl');
-                pnlEl.innerText = formatMoney(monthlyPnl);
-                pnlEl.className = `text-2xl md:text-3xl font-bold ${colorize(monthlyPnl)}`;
-
-                const availEl = document.getElementById('uiAvailable');
-                availEl.innerText = formatMoney(availableFunds);
-                if (availableFunds < 0) availEl.classList.replace('text-blue-400', 'text-rose-500');
-                else availEl.classList.replace('text-rose-500', 'text-blue-400');
-
-                document.getElementById('uiGlobalSip').innerText = formatMoney(globalSip);
-                document.getElementById('uiGlobalPnl').innerText = formatMoney(globalPnl);
-                document.getElementById('uiTotalVal').innerText = formatMoney(globalSip + globalPnl);
-                
-                const roiEl = document.getElementById('uiGlobalRoi');
-                roiEl.innerText = pctFormatter.format(globalRoi);
-                roiEl.className = `text-sm font-extrabold ${colorize(globalPnl)}`;
-
-                renderTable();
-
-            } catch (err) { alert("Error: " + err.message); } 
-            finally { showLoader(false); }
+            const m = document.getElementById('monthSelector').value; 
+            const s = document.getElementById('inputSip').value; 
+            await supabase.from('monthly_sip').upsert({ month: m, sip_amount: s }); 
+            closeModals(); 
+            fetchDashboardData(); 
         }
 
-        async function postData(payload, btnId) {
-            const btn = document.getElementById(btnId);
-            let originalHTML = "";
-            if (btn) {
-                originalHTML = btn.innerHTML;
-                btn.innerHTML = `<div class="spinner border-t-white"></div>`;
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
+        async function saveNewTrade() { 
             showLoader(true);
-            try {
-                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain' }});
-                const data = await response.json();
-                if(data.error) throw new Error(data.error);
-                
-                if(payload.action === 'rollover' && data.message) alert(data.message);
+            const payload = { 
+                month: document.getElementById('monthSelector').value, 
+                stock: document.getElementById('addStock').value.toUpperCase(), 
+                setup: document.getElementById('addSetup').value, 
+                qty: document.getElementById('addQty').value, 
+                entry_price: document.getElementById('addEntry').value, 
+                status: 'Open' 
+            }; 
+            await supabase.from('trades').insert(payload); 
+            closeModals(); 
+            fetchDashboardData(); 
+        }
 
-                closeModals();
+        async function deleteTrade() { 
+            if(confirm("Delete this trade forever?")) { 
+                showLoader(true);
+                await supabase.from('trades').delete().eq('id', document.getElementById('editId').value); 
+                closeModals(); 
                 fetchDashboardData(); 
-            } catch (err) { alert("Action failed: " + err.message); } 
-            finally {
-                if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; btn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+            } 
+        }
+
+        async function saveTradeUpdate() {
+            showLoader(true);
+            const id = document.getElementById('editId').value;
+            const type = document.getElementById('editActionType').value;
+            const month = document.getElementById('monthSelector').value;
+
+            try {
+                if (type === 'fullExit') {
+                    const status = document.getElementById('editStatus').value;
+                    const exit = document.getElementById('editExit').value;
+                    await supabase.from('trades').update({ status: status, exit_price: exit ? exit : null }).eq('id', id);
+                } else if (type === 'addMore') {
+                    const t = allTrades.find(x => x.id == id);
+                    const addedQty = Number(document.getElementById('editActionQty').value);
+                    const addedPrice = Number(document.getElementById('editActionPrice').value);
+                    
+                    if(!addedQty || !addedPrice) { alert("Please enter both shares and price."); showLoader(false); return; }
+                    
+                    const nQty = Number(t.qty) + addedQty;
+                    const nEntry = ((t.qty * t.entry_price) + (addedQty * addedPrice)) / nQty;
+                    await supabase.from('trades').update({ qty: nQty, entry_price: nEntry }).eq('id', id);
+                } else if (type === 'partialSell') {
+                    const t = allTrades.find(x => x.id == id);
+                    const sQty = Number(document.getElementById('editActionQty').value);
+                    const sPrice = Number(document.getElementById('editActionPrice').value);
+                    
+                    if(!sQty || !sPrice) { alert("Please enter both shares and price."); showLoader(false); return; }
+                    
+                    if(sQty >= t.qty) {
+                        // Sold everything
+                        await supabase.from('trades').update({ status: 'Closed', exit_price: sPrice }).eq('id', id);
+                    } else {
+                        // Reduce current open amount
+                        await supabase.from('trades').update({ qty: t.qty - sQty }).eq('id', id);
+                        // Create closed record
+                        await supabase.from('trades').insert({ month, stock: t.stock, setup: t.setup, qty: sQty, entry_price: t.entry_price, exit_price: sPrice, status: 'Closed' });
+                    }
+                }
+                closeModals(); 
+                fetchDashboardData();
+            } catch (err) {
+                alert("Update failed: " + err.message);
                 showLoader(false);
             }
         }
 
-        function toggleEditFields() {
-            const action = document.getElementById('editActionType').value;
-            const fullExitFields = document.getElementById('fieldsFullExit');
-            const partialFields = document.getElementById('fieldsPartial');
-            const lblQty = document.getElementById('lblActionQty');
-            const lblPrice = document.getElementById('lblActionPrice');
+        async function rolloverTrades() {
+            const currentMonth = document.getElementById('monthSelector').value;
+            const select = document.getElementById('monthSelector');
+            const currentIndex = select.selectedIndex;
+            
+            if (currentIndex === select.options.length - 1) {
+                alert("No next month available to rollover into.");
+                return;
+            }
+            
+            const nextMonth = select.options[currentIndex + 1].value;
 
-            if (action === 'fullExit') {
-                fullExitFields.classList.remove('hidden');
-                partialFields.classList.add('hidden');
-            } else if (action === 'addMore') {
-                fullExitFields.classList.add('hidden');
-                partialFields.classList.remove('hidden');
-                lblQty.innerText = "Shares Bought";
-                lblPrice.innerText = "Buy Price (₹)";
-            } else if (action === 'partialSell') {
-                fullExitFields.classList.add('hidden');
-                partialFields.classList.remove('hidden');
-                lblQty.innerText = "Shares Sold";
-                lblPrice.innerText = "Sell Price (₹)";
+            if(confirm(`Scan [${currentMonth}] for 'Open' trades and COPY them to [${nextMonth}]?`)) {
+                showLoader(true);
+                const openTrades = allTrades.filter(t => t.status === 'Open');
+                
+                if (openTrades.length === 0) {
+                    alert("No open trades to rollover.");
+                    showLoader(false);
+                    return;
+                }
+
+                // Prepare new rows
+                const newRows = openTrades.map(t => ({
+                    month: nextMonth,
+                    stock: t.stock,
+                    setup: t.setup,
+                    qty: t.qty,
+                    entry_price: t.entry_price,
+                    status: 'Open'
+                }));
+
+                await supabase.from('trades').insert(newRows);
+                alert(`Successfully rolled over ${newRows.length} trades to ${nextMonth}!`);
+                
+                // Automatically switch view to next month
+                select.selectedIndex = currentIndex + 1;
+                fetchDashboardData();
             }
         }
 
-        function openEditModal(trade) { 
-            document.getElementById('editHeader').innerText = trade.stock; 
-            
-            // FIXED: Rounded Avg Entry in the Modal Subtext
-            const formattedEntry = trade.entry ? Number(trade.entry).toFixed(2) : '0.00';
-            document.getElementById('editSubtext').innerText = `Current Qty: ${trade.qty} | Avg Entry: ₹${formattedEntry}`; 
-            
-            document.getElementById('editRow').value = trade.row; 
+        function openEditModal(t) { 
+            document.getElementById('editId').value = t.id; 
+            document.getElementById('editHeader').innerText = t.stock; 
+            document.getElementById('editSubtext').innerText = `Current Qty: ${t.qty} | Avg Entry: ₹${Number(t.entry_price).toFixed(2)}`; 
             
             document.getElementById('editActionType').value = 'fullExit';
             toggleEditFields();
-
-            document.getElementById('editStatus').value = trade.status; 
-            document.getElementById('editExit').value = trade.exit || ''; 
+            
+            document.getElementById('editStatus').value = t.status; 
+            document.getElementById('editExit').value = t.exit_price || ''; 
             document.getElementById('editActionQty').value = '';
             document.getElementById('editActionPrice').value = '';
-
+            
             document.getElementById('editModal').classList.remove('hidden'); 
         }
-
-        function saveTradeUpdate() { 
-            const actionType = document.getElementById('editActionType').value;
-            let payload = { action: 'updateTrade', month: document.getElementById('monthSelector').value, row: document.getElementById('editRow').value, updateType: actionType };
-
-            if (actionType === 'fullExit') {
-                payload.status = document.getElementById('editStatus').value;
-                payload.exit = document.getElementById('editExit').value;
-            } else {
-                payload.tradeQty = document.getElementById('editActionQty').value;
-                payload.tradePrice = document.getElementById('editActionPrice').value;
-                if (!payload.tradeQty || !payload.tradePrice) { alert("Please enter both Shares and Price."); return; }
-            }
-            postData(payload, 'btnUpdateTrade'); 
+        
+        function toggleEditFields() { 
+            const v = document.getElementById('editActionType').value; 
+            const lblQty = document.getElementById('lblActionQty');
+            const lblPrice = document.getElementById('lblActionPrice');
+            
+            document.getElementById('fieldsFullExit').classList.toggle('hidden', v !== 'fullExit'); 
+            document.getElementById('fieldsPartial').classList.toggle('hidden', v === 'fullExit'); 
+            
+            if(v === 'addMore') { lblQty.innerText = "Shares Bought"; lblPrice.innerText = "Buy Price (₹)"; }
+            if(v === 'partialSell') { lblQty.innerText = "Shares Sold"; lblPrice.innerText = "Sell Price (₹)"; }
         }
-
+        
+        function openAddModal() { 
+            document.getElementById('addStock').value = ''; 
+            document.getElementById('addEntry').value = ''; 
+            document.getElementById('addQty').value = ''; 
+            document.getElementById('addModal').classList.remove('hidden'); 
+        }
         function openSipModal() { document.getElementById('sipModal').classList.remove('hidden'); }
-        function saveSip() { postData({ action: 'updateSip', month: document.getElementById('monthSelector').value, sip: document.getElementById('inputSip').value }, 'btnSaveSip'); }
-        function openAddModal() { document.getElementById('addStock').value = ''; document.getElementById('addEntry').value = ''; document.getElementById('addQty').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
-        function saveNewTrade() { postData({ action: 'addTrade', month: document.getElementById('monthSelector').value, stock: document.getElementById('addStock').value, setup: document.getElementById('addSetup').value, entry: document.getElementById('addEntry').value, qty: document.getElementById('addQty').value }, 'btnAddTrade'); }
-        function deleteTrade() { if(confirm("Delete this trade?")) postData({ action: 'deleteTrade', month: document.getElementById('monthSelector').value, row: document.getElementById('editRow').value }, 'btnDeleteTrade'); }
-        function rolloverTrades() {
-            const currentMonth = document.getElementById('monthSelector').value;
-            if(confirm(`Scan [${currentMonth}] for 'Open' trades and COPY them to the next month?\n\nThe originals will remain untouched.`)) {
-                postData({ action: 'rollover', month: currentMonth }, 'btnRollover');
-            }
-        }
-
+        
+        // Initialize
         document.getElementById('monthSelector').value = "Mar 2026";
         fetchDashboardData();
     </script>
