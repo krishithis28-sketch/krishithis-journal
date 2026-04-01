@@ -63,14 +63,11 @@
             
             <div class="relative w-full md:w-64">
                 <input type="hidden" id="monthSelector" value="Mar 2026">
-                
                 <button id="customMonthBtn" class="w-full bg-[var(--input-bg)] border border-[var(--border-color)] p-3 rounded-lg text-left font-bold text-lg flex justify-between items-center transition-colors" onclick="toggleDropdown()">
                     <span id="selectedMonthText">Mar 2026</span>
                     <span class="text-[var(--text-muted)] text-sm">▼</span>
                 </button>
-                
-                <div id="customMonthMenu" class="absolute z-50 w-full mt-2 bg-[var(--bg-color)] border border-[var(--border-color)] rounded-xl shadow-2xl hidden max-h-96 overflow-y-auto hide-scroll">
-                    </div>
+                <div id="customMonthMenu" class="absolute z-50 w-full mt-2 bg-[var(--bg-color)] border border-[var(--border-color)] rounded-xl shadow-2xl hidden max-h-96 overflow-y-auto hide-scroll"></div>
             </div>
 
             <input type="text" id="searchInput" placeholder="🔍 Filter by Stock..." class="w-full md:w-64" onkeyup="renderTable()">
@@ -86,7 +83,7 @@
                 <p class="text-2xl md:text-3xl font-bold" id="uiPnl">₹0.00</p>
             </div>
             <div class="glass-panel p-5 bg-blue-900/10">
-                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Available Funds</p>
+                <p class="text-xs font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Global Available Funds</p>
                 <p class="text-2xl md:text-3xl font-bold text-blue-400" id="uiAvailable">₹0.00</p>
             </div>
         </div>
@@ -158,7 +155,9 @@
                 <select id="editActionType" class="!p-2 border-blue-500/50" onchange="toggleEditFields()"><option value="fullExit">Full Exit / Change Status</option><option value="addMore">Add More Shares</option><option value="partialSell">Partial Sell</option></select>
             </div>
             <div id="fieldsFullExit" class="space-y-3 mb-6">
-                <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Status</label><select id="editStatus" class="!p-2"><option value="Open">Open</option><option value="Closed">Closed</option></select></div>
+                <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Status</label>
+                    <select id="editStatus" class="!p-2"><option value="Open">Open</option><option value="Closed">Closed</option><option value="Rolled">Rolled</option></select>
+                </div>
                 <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Exit Price (₹)</label><input type="number" step="0.05" id="editExit" class="!p-2"></div>
             </div>
             <div id="fieldsPartial" class="space-y-3 mb-6 hidden">
@@ -180,7 +179,7 @@
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTrades = [];
-        let generatedMonths = []; // Keeps track of all valid months for Rollovers
+        let generatedMonths = []; 
         let sortCol = ''; let sortAsc = true;
         
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
@@ -206,9 +205,8 @@
             
             const totalMonths = ((today.getFullYear() - startYear) * 12) + (today.getMonth() - startMonthIndex) + 2;
 
-            // Group by year
             const yearsData = {};
-            generatedMonths = []; // Reset global array
+            generatedMonths = []; 
             
             for (let i = 0; i < totalMonths; i++) { 
                 let d = new Date(startYear, startMonthIndex + i);
@@ -220,12 +218,10 @@
                 generatedMonths.push(m);
             }
 
-            menu.innerHTML = ''; // Clear previous
+            menu.innerHTML = ''; 
 
-            // Build HTML Accordion
             for (const [year, months] of Object.entries(yearsData)) {
                 const yearHeader = document.createElement('div');
-                // Auto-expand the current year, keep past/future years minimized
                 const isOpen = (parseInt(year) === currentRealYear);
                 
                 yearHeader.innerHTML = `
@@ -244,7 +240,6 @@
                 menu.appendChild(yearHeader);
             }
 
-            // Set initial selected value
             let currentMonthString = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
             if (today.getFullYear() === 2026 && today.getMonth() < 2) currentMonthString = "Mar 2026";
             
@@ -252,71 +247,65 @@
             document.getElementById('monthSelector').value = currentMonthString;
         }
 
-        function toggleDropdown() {
-            document.getElementById('customMonthMenu').classList.toggle('hidden');
-        }
-
+        function toggleDropdown() { document.getElementById('customMonthMenu').classList.toggle('hidden'); }
         function toggleYear(year) {
             const group = document.getElementById(`group-${year}`);
             const icon = document.getElementById(`icon-${year}`);
-            if (group.classList.contains('hidden')) {
-                group.classList.remove('hidden');
-                icon.innerText = '▼';
-            } else {
-                group.classList.add('hidden');
-                icon.innerText = '▶';
-            }
+            if (group.classList.contains('hidden')) { group.classList.remove('hidden'); icon.innerText = '▼'; } 
+            else { group.classList.add('hidden'); icon.innerText = '▶'; }
         }
 
         function selectMonth(monthStr) {
             document.getElementById('selectedMonthText').innerText = monthStr;
-            document.getElementById('monthSelector').value = monthStr; // Update hidden input
-            toggleDropdown(); // Close menu
-            fetchDashboardData(); // Refresh data
+            document.getElementById('monthSelector').value = monthStr; 
+            toggleDropdown(); 
+            fetchDashboardData(); 
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const btn = document.getElementById('customMonthBtn');
             const menu = document.getElementById('customMonthMenu');
-            if (!btn.contains(event.target) && !menu.contains(event.target)) {
-                menu.classList.add('hidden');
-            }
+            if (!btn.contains(event.target) && !menu.contains(event.target)) { menu.classList.add('hidden'); }
         });
-        // ------------------------------
 
+        // --- DATA LOGIC ---
         async function fetchDashboardData() {
             const m = document.getElementById('monthSelector').value;
             showLoader(true);
 
             try {
+                // Fetch SIP for currently viewed month
                 const { data: sipData } = await db.from('monthly_sip').select('sip_amount').eq('month', m).maybeSingle();
                 const monthlySip = sipData?.sip_amount || 0;
 
+                // Fetch Trades for currently viewed month
                 const { data: monthTrades } = await db.from('trades').select('*').eq('month', m);
                 allTrades = monthTrades || [];
 
+                // NEW: Fetch ALL Global Stats in one go
                 const { data: allStats } = await db.from('trades').select('qty, entry_price, exit_price, status');
                 const { data: sipStats } = await db.from('monthly_sip').select('sip_amount');
                 
                 const globalSip = (sipStats || []).reduce((s, x) => s + Number(x.sip_amount), 0);
                 const globalPnl = (allStats || []).filter(x => x.status === 'Closed').reduce((s, x) => s + (Number(x.exit_price) - Number(x.entry_price)) * Number(x.qty), 0);
                 
-                renderUI(monthlySip, globalSip, globalPnl);
+                // NEW: Calculate True Global Open Investment (Only looks at 'Open', ignores 'Rolled' and 'Closed')
+                const globalInvestedOpen = (allStats || []).filter(x => x.status === 'Open').reduce((s, x) => s + (Number(x.qty) * Number(x.entry_price)), 0);
+                
+                renderUI(monthlySip, globalSip, globalPnl, globalInvestedOpen);
             } catch (err) {
-                console.error("Fetch Error:", err);
                 alert("Could not load data. Please check connection.");
             }
-            
             showLoader(false);
         }
 
-        function renderUI(mSip, gSip, gPnl) {
+        function renderUI(mSip, gSip, gPnl, gInvestedOpen) {
+            // Local Month Calculations (For the Table)
             const openTrades = allTrades.filter(t => t.status === 'Open');
-            const totalInvestedOpen = openTrades.reduce((s, t) => s + (Number(t.qty) * Number(t.entry_price)), 0);
             const monthlyPnl = allTrades.filter(t => t.status === 'Closed').reduce((s, t) => s + (Number(t.exit_price) - Number(t.entry_price)) * Number(t.qty), 0);
             
-            const available = (Number(gSip) + Number(gPnl)) - totalInvestedOpen;
+            // MATH FIX: True Global Available Funds (Global Cash - Global Open Capital)
+            const available = (Number(gSip) + Number(gPnl)) - gInvestedOpen;
 
             document.getElementById('openCountBadge').innerText = openTrades.length ? `(${openTrades.length})` : '';
             document.getElementById('uiSip').innerText = formatMoney(mSip);
@@ -359,14 +348,13 @@
                         valA = a[sortCol] || '';
                         valB = b[sortCol] || '';
                     }
-
-                    if(typeof valA === 'string' && typeof valB === 'string') {
-                        return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                    }
+                    if(typeof valA === 'string' && typeof valB === 'string') return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
                     return sortAsc ? valA - valB : valB - valA;
                 });
             } else {
-                filtered.sort((a,b) => a.status === 'Open' ? -1 : 1);
+                // Default Sorting: Open -> Closed -> Rolled
+                const statusWeight = { 'Open': 1, 'Closed': 2, 'Rolled': 3 };
+                filtered.sort((a,b) => statusWeight[a.status] - statusWeight[b.status]);
             }
 
             const tbody = document.getElementById('tableBody');
@@ -377,7 +365,11 @@
                 const pnlValue = t.status === 'Closed' ? (t.exit_price - t.entry_price) * t.qty : null;
                 const pnlPct = pnlValue ? pnlValue / (t.qty * t.entry_price) : null;
                 
-                const statusBadge = t.status === 'Open' ? `<span class="bg-blue-500/20 text-blue-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Open</span>` : `<span class="bg-[var(--th-bg)] text-[var(--text-muted)] px-2 py-0.5 rounded text-[10px] font-bold uppercase">Closed</span>`;
+                // NEW: Logic for the "Rolled" badge
+                let statusBadge = '';
+                if (t.status === 'Open') statusBadge = `<span class="bg-blue-500/20 text-blue-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Open</span>`;
+                else if (t.status === 'Closed') statusBadge = `<span class="bg-[var(--th-bg)] text-[var(--text-muted)] px-2 py-0.5 rounded text-[10px] font-bold uppercase">Closed</span>`;
+                else statusBadge = `<span class="bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Rolled</span>`;
                 
                 tr.innerHTML = `
                     <td class="px-4 py-3 font-bold">${t.stock}</td>
@@ -392,38 +384,9 @@
             });
         }
 
-        async function saveSip() { 
-            showLoader(true);
-            const m = document.getElementById('monthSelector').value; 
-            const s = document.getElementById('inputSip').value; 
-            await db.from('monthly_sip').upsert({ month: m, sip_amount: s }); 
-            closeModals(); 
-            fetchDashboardData(); 
-        }
-
-        async function saveNewTrade() { 
-            showLoader(true);
-            const payload = { 
-                month: document.getElementById('monthSelector').value, 
-                stock: document.getElementById('addStock').value.toUpperCase(), 
-                setup: document.getElementById('addSetup').value, 
-                qty: document.getElementById('addQty').value, 
-                entry_price: document.getElementById('addEntry').value, 
-                status: 'Open' 
-            }; 
-            await db.from('trades').insert(payload); 
-            closeModals(); 
-            fetchDashboardData(); 
-        }
-
-        async function deleteTrade() { 
-            if(confirm("Delete this trade forever?")) { 
-                showLoader(true);
-                await db.from('trades').delete().eq('id', document.getElementById('editId').value); 
-                closeModals(); 
-                fetchDashboardData(); 
-            } 
-        }
+        async function saveSip() { showLoader(true); const m = document.getElementById('monthSelector').value; const s = document.getElementById('inputSip').value; await db.from('monthly_sip').upsert({ month: m, sip_amount: s }); closeModals(); fetchDashboardData(); }
+        async function saveNewTrade() { showLoader(true); const payload = { month: document.getElementById('monthSelector').value, stock: document.getElementById('addStock').value.toUpperCase(), setup: document.getElementById('addSetup').value, qty: document.getElementById('addQty').value, entry_price: document.getElementById('addEntry').value, status: 'Open' }; await db.from('trades').insert(payload); closeModals(); fetchDashboardData(); }
+        async function deleteTrade() { if(confirm("Delete this trade forever?")) { showLoader(true); await db.from('trades').delete().eq('id', document.getElementById('editId').value); closeModals(); fetchDashboardData(); } }
 
         async function saveTradeUpdate() {
             showLoader(true);
@@ -440,9 +403,7 @@
                     const t = allTrades.find(x => x.id == id);
                     const addedQty = Number(document.getElementById('editActionQty').value);
                     const addedPrice = Number(document.getElementById('editActionPrice').value);
-                    
                     if(!addedQty || !addedPrice) { alert("Please enter both shares and price."); showLoader(false); return; }
-                    
                     const nQty = Number(t.qty) + addedQty;
                     const nEntry = ((t.qty * t.entry_price) + (addedQty * addedPrice)) / nQty;
                     await db.from('trades').update({ qty: nQty, entry_price: nEntry }).eq('id', id);
@@ -450,101 +411,66 @@
                     const t = allTrades.find(x => x.id == id);
                     const sQty = Number(document.getElementById('editActionQty').value);
                     const sPrice = Number(document.getElementById('editActionPrice').value);
-                    
                     if(!sQty || !sPrice) { alert("Please enter both shares and price."); showLoader(false); return; }
-                    
-                    if(sQty >= t.qty) {
-                        await db.from('trades').update({ status: 'Closed', exit_price: sPrice }).eq('id', id);
-                    } else {
+                    if(sQty >= t.qty) { await db.from('trades').update({ status: 'Closed', exit_price: sPrice }).eq('id', id); } 
+                    else {
                         await db.from('trades').update({ qty: t.qty - sQty }).eq('id', id);
                         await db.from('trades').insert({ month, stock: t.stock, setup: t.setup, qty: sQty, entry_price: t.entry_price, exit_price: sPrice, status: 'Closed' });
                     }
                 }
-                closeModals(); 
-                fetchDashboardData();
-            } catch (err) {
-                alert("Update failed: " + err.message);
-                showLoader(false);
-            }
+                closeModals(); fetchDashboardData();
+            } catch (err) { alert("Update failed: " + err.message); showLoader(false); }
         }
 
         async function rolloverTrades() {
             const currentMonth = document.getElementById('monthSelector').value;
             const currentIndex = generatedMonths.indexOf(currentMonth);
             
-            if (currentIndex === generatedMonths.length - 1) {
-                alert("No next month available to rollover into yet.");
-                return;
-            }
-            
+            if (currentIndex === generatedMonths.length - 1) { alert("No next month available to rollover into yet."); return; }
             const nextMonth = generatedMonths[currentIndex + 1];
 
-            if(confirm(`Scan [${currentMonth}] for 'Open' trades and COPY them to [${nextMonth}]?`)) {
+            if(confirm(`Scan [${currentMonth}] for 'Open' trades and MOVE them to [${nextMonth}]?`)) {
                 showLoader(true);
                 const openTrades = allTrades.filter(t => t.status === 'Open');
                 
-                if (openTrades.length === 0) {
-                    alert("No open trades to rollover.");
-                    showLoader(false);
-                    return;
-                }
+                if (openTrades.length === 0) { alert("No open trades to rollover."); showLoader(false); return; }
 
-                const newRows = openTrades.map(t => ({
-                    month: nextMonth,
-                    stock: t.stock,
-                    setup: t.setup,
-                    qty: t.qty,
-                    entry_price: t.entry_price,
-                    status: 'Open'
-                }));
-
-                await db.from('trades').insert(newRows);
-                alert(`Successfully rolled over ${newRows.length} trades to ${nextMonth}!`);
+                // 1. Prepare new rows for next month
+                const newRows = openTrades.map(t => ({ month: nextMonth, stock: t.stock, setup: t.setup, qty: t.qty, entry_price: t.entry_price, status: 'Open' }));
                 
-                // Select the new month in the UI automatically
+                // 2. Insert new trades
+                await db.from('trades').insert(newRows);
+                
+                // 3. Mark old trades as "Rolled" so they aren't double counted
+                const oldIds = openTrades.map(t => t.id);
+                await db.from('trades').update({ status: 'Rolled' }).in('id', oldIds);
+
+                alert(`Successfully rolled over ${newRows.length} trades to ${nextMonth}!`);
                 selectMonth(nextMonth);
             }
         }
 
         function openEditModal(t) { 
-            document.getElementById('editId').value = t.id; 
-            document.getElementById('editHeader').innerText = t.stock; 
+            document.getElementById('editId').value = t.id; document.getElementById('editHeader').innerText = t.stock; 
             document.getElementById('editSubtext').innerText = `Current Qty: ${t.qty} | Avg Entry: ₹${Number(t.entry_price).toFixed(2)}`; 
-            
-            document.getElementById('editActionType').value = 'fullExit';
-            toggleEditFields();
-            
-            document.getElementById('editStatus').value = t.status; 
-            document.getElementById('editExit').value = t.exit_price || ''; 
-            document.getElementById('editActionQty').value = '';
-            document.getElementById('editActionPrice').value = '';
-            
+            document.getElementById('editActionType').value = 'fullExit'; toggleEditFields();
+            document.getElementById('editStatus').value = t.status; document.getElementById('editExit').value = t.exit_price || ''; 
+            document.getElementById('editActionQty').value = ''; document.getElementById('editActionPrice').value = '';
             document.getElementById('editModal').classList.remove('hidden'); 
         }
         
         function toggleEditFields() { 
-            const v = document.getElementById('editActionType').value; 
-            const lblQty = document.getElementById('lblActionQty');
-            const lblPrice = document.getElementById('lblActionPrice');
-            
-            document.getElementById('fieldsFullExit').classList.toggle('hidden', v !== 'fullExit'); 
-            document.getElementById('fieldsPartial').classList.toggle('hidden', v === 'fullExit'); 
-            
+            const v = document.getElementById('editActionType').value; const lblQty = document.getElementById('lblActionQty'); const lblPrice = document.getElementById('lblActionPrice');
+            document.getElementById('fieldsFullExit').classList.toggle('hidden', v !== 'fullExit'); document.getElementById('fieldsPartial').classList.toggle('hidden', v === 'fullExit'); 
             if(v === 'addMore') { lblQty.innerText = "Shares Bought"; lblPrice.innerText = "Buy Price (₹)"; }
             if(v === 'partialSell') { lblQty.innerText = "Shares Sold"; lblPrice.innerText = "Sell Price (₹)"; }
         }
         
-        function openAddModal() { 
-            document.getElementById('addStock').value = ''; 
-            document.getElementById('addEntry').value = ''; 
-            document.getElementById('addQty').value = ''; 
-            document.getElementById('addModal').classList.remove('hidden'); 
-        }
+        function openAddModal() { document.getElementById('addStock').value = ''; document.getElementById('addEntry').value = ''; document.getElementById('addQty').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
         function openSipModal() { document.getElementById('sipModal').classList.remove('hidden'); }
         
         // Initialize App
         populateMonths();
-        fetchDashboardData();
     </script>
 </body>
 </html>
