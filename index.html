@@ -169,11 +169,8 @@
     </div>
 
     <script>
-        // --- SUPABASE CONFIGURATION ---
         const SUPABASE_URL = "https://csksswotuhopqlfqilgg.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_a6--vkPhS3EjVF8DYQMUPQ_HQ1bwDIm";
-        
-        // FIX: Changed variable name to db to avoid colliding with the global 'supabase' library
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTrades = [];
@@ -219,7 +216,9 @@
             const openTrades = allTrades.filter(t => t.status === 'Open');
             const totalInvestedOpen = openTrades.reduce((s, t) => s + (Number(t.qty) * Number(t.entry_price)), 0);
             const monthlyPnl = allTrades.filter(t => t.status === 'Closed').reduce((s, t) => s + (Number(t.exit_price) - Number(t.entry_price)) * Number(t.qty), 0);
-            const available = (Number(mSip) + monthlyPnl) - totalInvestedOpen;
+            
+            // MATH FIX: Available Funds uses Global Cash minus current Open Trades
+            const available = (Number(gSip) + Number(gPnl)) - totalInvestedOpen;
 
             document.getElementById('openCountBadge').innerText = openTrades.length ? `(${openTrades.length})` : '';
             document.getElementById('uiSip').innerText = formatMoney(mSip);
