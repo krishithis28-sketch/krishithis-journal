@@ -60,13 +60,19 @@
 
     <div id="viewMonthly" class="w-full max-w-7xl">
         <div class="flex flex-col md:flex-row justify-between gap-4 mb-4">
-            <select id="monthSelector" class="w-full md:w-48 font-bold !text-lg" onchange="fetchDashboardData()">
-                <option value="Mar 2026">Mar 2026</option><option value="Apr 2026">Apr 2026</option>
-                <option value="May 2026">May 2026</option><option value="Jun 2026">Jun 2026</option>
-                <option value="Jul 2026">Jul 2026</option><option value="Aug 2026">Aug 2026</option>
-                <option value="Sep 2026">Sep 2026</option><option value="Oct 2026">Oct 2026</option>
-                <option value="Nov 2026">Nov 2026</option><option value="Dec 2026">Dec 2026</option>
-            </select>
+            
+            <div class="relative w-full md:w-64">
+                <input type="hidden" id="monthSelector" value="Mar 2026">
+                
+                <button id="customMonthBtn" class="w-full bg-[var(--input-bg)] border border-[var(--border-color)] p-3 rounded-lg text-left font-bold text-lg flex justify-between items-center transition-colors" onclick="toggleDropdown()">
+                    <span id="selectedMonthText">Mar 2026</span>
+                    <span class="text-[var(--text-muted)] text-sm">▼</span>
+                </button>
+                
+                <div id="customMonthMenu" class="absolute z-50 w-full mt-2 bg-[var(--bg-color)] border border-[var(--border-color)] rounded-xl shadow-2xl hidden max-h-96 overflow-y-auto hide-scroll">
+                    </div>
+            </div>
+
             <input type="text" id="searchInput" placeholder="🔍 Filter by Stock..." class="w-full md:w-64" onkeyup="renderTable()">
         </div>
 
@@ -174,7 +180,9 @@
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTrades = [];
+        let generatedMonths = []; // Keeps track of all valid months for Rollovers
         let sortCol = ''; let sortAsc = true;
+        
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
         const pctFormatter = new Intl.NumberFormat('en-IN', { style: 'percent', minimumFractionDigits: 2 });
         const formatMoney = (v) => v ? formatter.format(v) : '-';
@@ -185,6 +193,97 @@
         function toggleTheme() { const b = document.body; const i = document.getElementById('themeIcon'); if (b.getAttribute('data-theme') === 'light') { b.removeAttribute('data-theme'); i.innerText = '☀️'; } else { b.setAttribute('data-theme', 'light'); i.innerText = '🌙'; } }
         function switchTab(t) { document.getElementById('tabMonthly').classList.remove('active'); document.getElementById('tabMaster').classList.remove('active'); document.getElementById('viewMonthly').classList.add('hidden'); document.getElementById('viewMaster').classList.add('hidden'); if(t === 'monthly') { document.getElementById('tabMonthly').classList.add('active'); document.getElementById('viewMonthly').classList.remove('hidden'); } else { document.getElementById('tabMaster').classList.add('active'); document.getElementById('viewMaster').classList.remove('hidden'); } }
         function setSort(c) { if(sortCol === c) sortAsc = !sortAsc; else { sortCol = c; sortAsc = true; } renderTable(); }
+
+        // --- CUSTOM DROPDOWN LOGIC ---
+        function populateMonths() {
+            const menu = document.getElementById('customMonthMenu');
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            
+            const startYear = 2026;
+            const startMonthIndex = 2; // March
+            const today = new Date();
+            const currentRealYear = today.getFullYear();
+            
+            const totalMonths = ((today.getFullYear() - startYear) * 12) + (today.getMonth() - startMonthIndex) + 2;
+
+            // Group by year
+            const yearsData = {};
+            generatedMonths = []; // Reset global array
+            
+            for (let i = 0; i < totalMonths; i++) { 
+                let d = new Date(startYear, startMonthIndex + i);
+                let y = d.getFullYear();
+                let m = `${monthNames[d.getMonth()]} ${y}`;
+                
+                if (!yearsData[y]) yearsData[y] = [];
+                yearsData[y].push(m);
+                generatedMonths.push(m);
+            }
+
+            menu.innerHTML = ''; // Clear previous
+
+            // Build HTML Accordion
+            for (const [year, months] of Object.entries(yearsData)) {
+                const yearHeader = document.createElement('div');
+                // Auto-expand the current year, keep past/future years minimized
+                const isOpen = (parseInt(year) === currentRealYear);
+                
+                yearHeader.innerHTML = `
+                    <button onclick="toggleYear('${year}')" class="w-full text-left px-4 py-2 bg-[var(--th-bg)] font-bold text-[var(--text-muted)] text-sm flex justify-between items-center border-b border-[var(--border-color)]">
+                        <span>${year}</span>
+                        <span id="icon-${year}">${isOpen ? '▼' : '▶'}</span>
+                    </button>
+                    <div id="group-${year}" class="${isOpen ? 'block' : 'hidden'}">
+                        ${months.map(m => `
+                            <button onclick="selectMonth('${m}')" class="w-full text-left px-6 py-2 hover:bg-[var(--row-hover)] border-b border-[var(--border-color)] transition-colors text-[var(--text-main)]">
+                                ${m}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                menu.appendChild(yearHeader);
+            }
+
+            // Set initial selected value
+            let currentMonthString = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+            if (today.getFullYear() === 2026 && today.getMonth() < 2) currentMonthString = "Mar 2026";
+            
+            document.getElementById('selectedMonthText').innerText = currentMonthString;
+            document.getElementById('monthSelector').value = currentMonthString;
+        }
+
+        function toggleDropdown() {
+            document.getElementById('customMonthMenu').classList.toggle('hidden');
+        }
+
+        function toggleYear(year) {
+            const group = document.getElementById(`group-${year}`);
+            const icon = document.getElementById(`icon-${year}`);
+            if (group.classList.contains('hidden')) {
+                group.classList.remove('hidden');
+                icon.innerText = '▼';
+            } else {
+                group.classList.add('hidden');
+                icon.innerText = '▶';
+            }
+        }
+
+        function selectMonth(monthStr) {
+            document.getElementById('selectedMonthText').innerText = monthStr;
+            document.getElementById('monthSelector').value = monthStr; // Update hidden input
+            toggleDropdown(); // Close menu
+            fetchDashboardData(); // Refresh data
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const btn = document.getElementById('customMonthBtn');
+            const menu = document.getElementById('customMonthMenu');
+            if (!btn.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+        // ------------------------------
 
         async function fetchDashboardData() {
             const m = document.getElementById('monthSelector').value;
@@ -247,16 +346,12 @@
             if(sortCol) {
                 filtered.sort((a, b) => {
                     let valA, valB;
-                    
-                    // FIXED Dynamic Sorting Logic
                     if (sortCol === 'invested') {
                         valA = Number(a.qty) * Number(a.entry_price);
                         valB = Number(b.qty) * Number(b.entry_price);
                     } else if (sortCol === 'pnl') {
                         valA = a.status === 'Closed' ? (Number(a.exit_price) - Number(a.entry_price)) * Number(a.qty) : null;
                         valB = b.status === 'Closed' ? (Number(b.exit_price) - Number(b.entry_price)) * Number(b.qty) : null;
-                        
-                        // Push 'Open' trades (null P&L) to the bottom regardless of sort order
                         if (valA === null && valB === null) return 0;
                         if (valA === null) return 1;
                         if (valB === null) return -1;
@@ -375,15 +470,14 @@
 
         async function rolloverTrades() {
             const currentMonth = document.getElementById('monthSelector').value;
-            const select = document.getElementById('monthSelector');
-            const currentIndex = select.selectedIndex;
+            const currentIndex = generatedMonths.indexOf(currentMonth);
             
-            if (currentIndex === select.options.length - 1) {
-                alert("No next month available to rollover into.");
+            if (currentIndex === generatedMonths.length - 1) {
+                alert("No next month available to rollover into yet.");
                 return;
             }
             
-            const nextMonth = select.options[currentIndex + 1].value;
+            const nextMonth = generatedMonths[currentIndex + 1];
 
             if(confirm(`Scan [${currentMonth}] for 'Open' trades and COPY them to [${nextMonth}]?`)) {
                 showLoader(true);
@@ -407,8 +501,8 @@
                 await db.from('trades').insert(newRows);
                 alert(`Successfully rolled over ${newRows.length} trades to ${nextMonth}!`);
                 
-                select.selectedIndex = currentIndex + 1;
-                fetchDashboardData();
+                // Select the new month in the UI automatically
+                selectMonth(nextMonth);
             }
         }
 
@@ -448,7 +542,8 @@
         }
         function openSipModal() { document.getElementById('sipModal').classList.remove('hidden'); }
         
-        document.getElementById('monthSelector').value = "Mar 2026";
+        // Initialize App
+        populateMonths();
         fetchDashboardData();
     </script>
 </body>
