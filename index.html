@@ -305,12 +305,16 @@
                     : `<span class="bg-[var(--th-bg)] text-[var(--text-muted)] px-2 py-0.5 rounded text-[10px] font-bold uppercase">Closed</span>`;
                 const pnlText = t.status === 'Closed' ? `${formatMoney(t.pnl)}<br><span class="text-[10px] opacity-75">${pctFormatter.format(t.pnlPct)}</span>` : '-';
 
+                // FIXED: .toFixed(2) added for Entry and Exit prices to prevent long decimals
+                const formattedEntry = t.entry ? Number(t.entry).toFixed(2) : '-';
+                const formattedExit = t.exit ? Number(t.exit).toFixed(2) : '-';
+
                 row.innerHTML = `
                     <td class="px-4 py-3 font-bold">${t.stock}</td>
                     <td class="px-4 py-3 text-[var(--text-muted)] hidden md:table-cell text-xs">${t.setup}</td>
                     <td class="px-4 py-3 text-right font-mono">${formatMoney(t.invested)}</td>
-                    <td class="px-4 py-3 text-right text-xs text-[var(--text-muted)]">${t.qty} @ ${t.entry}</td>
-                    <td class="px-4 py-3 text-right font-mono">${t.exit || '-'}</td>
+                    <td class="px-4 py-3 text-right text-xs text-[var(--text-muted)]">${t.qty} @ ${formattedEntry}</td>
+                    <td class="px-4 py-3 text-right font-mono">${formattedExit}</td>
                     <td class="px-4 py-3 text-center">${statusBadge}</td>
                     <td class="px-4 py-3 text-right leading-tight ${colorize(t.pnl)}">${pnlText}</td>
                 `;
@@ -397,7 +401,6 @@
             }
         }
 
-        // --- NEW: Toggle Logic for Edit Modal ---
         function toggleEditFields() {
             const action = document.getElementById('editActionType').value;
             const fullExitFields = document.getElementById('fieldsFullExit');
@@ -423,10 +426,13 @@
 
         function openEditModal(trade) { 
             document.getElementById('editHeader').innerText = trade.stock; 
-            document.getElementById('editSubtext').innerText = `Current Qty: ${trade.qty} | Avg Entry: ₹${trade.entry}`; 
+            
+            // FIXED: Rounded Avg Entry in the Modal Subtext
+            const formattedEntry = trade.entry ? Number(trade.entry).toFixed(2) : '0.00';
+            document.getElementById('editSubtext').innerText = `Current Qty: ${trade.qty} | Avg Entry: ₹${formattedEntry}`; 
+            
             document.getElementById('editRow').value = trade.row; 
             
-            // Reset modal to Full Exit by default
             document.getElementById('editActionType').value = 'fullExit';
             toggleEditFields();
 
@@ -440,13 +446,7 @@
 
         function saveTradeUpdate() { 
             const actionType = document.getElementById('editActionType').value;
-            
-            let payload = {
-                action: 'updateTrade', 
-                month: document.getElementById('monthSelector').value, 
-                row: document.getElementById('editRow').value,
-                updateType: actionType
-            };
+            let payload = { action: 'updateTrade', month: document.getElementById('monthSelector').value, row: document.getElementById('editRow').value, updateType: actionType };
 
             if (actionType === 'fullExit') {
                 payload.status = document.getElementById('editStatus').value;
@@ -454,10 +454,7 @@
             } else {
                 payload.tradeQty = document.getElementById('editActionQty').value;
                 payload.tradePrice = document.getElementById('editActionPrice').value;
-                if (!payload.tradeQty || !payload.tradePrice) {
-                    alert("Please enter both Shares and Price.");
-                    return;
-                }
+                if (!payload.tradeQty || !payload.tradePrice) { alert("Please enter both Shares and Price."); return; }
             }
             postData(payload, 'btnUpdateTrade'); 
         }
