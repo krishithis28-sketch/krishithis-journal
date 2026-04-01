@@ -305,6 +305,7 @@
                     : `<span class="bg-[var(--th-bg)] text-[var(--text-muted)] px-2 py-0.5 rounded text-[10px] font-bold uppercase">Closed</span>`;
                 const pnlText = t.status === 'Closed' ? `${formatMoney(t.pnl)}<br><span class="text-[10px] opacity-75">${pctFormatter.format(t.pnlPct)}</span>` : '-';
 
+                // FIXED: .toFixed(2) added for Entry and Exit prices to prevent long decimals
                 const formattedEntry = t.entry ? Number(t.entry).toFixed(2) : '-';
                 const formattedExit = t.exit ? Number(t.exit).toFixed(2) : '-';
 
@@ -321,78 +322,57 @@
             });
         }
 
-        // --- NEW: UI Render Logic split into its own function ---
-        function renderDataToUI(data) {
-            allTrades = data.trades || [];
-            allTrades.sort((a, b) => {
-                if (a.status === 'Open' && b.status !== 'Open') return -1;
-                if (a.status !== 'Open' && b.status === 'Open') return 1;
-                return 0;
-            });
-
-            const openTrades = allTrades.filter(t => t.status === 'Open');
-            const totalInvestedOpen = openTrades.reduce((sum, t) => sum + (Number(t.invested) || 0), 0);
-            
-            const monthlySip = Number(data.sip) || 0;
-            const monthlyPnl = Number(data.pnl) || 0;
-            const availableFunds = (monthlySip + monthlyPnl) - totalInvestedOpen;
-            
-            const globalSip = Number(data.globalSip) || 0;
-            const globalPnl = Number(data.globalPnl) || 0;
-            const globalRoi = globalSip > 0 ? (globalPnl / globalSip) : 0;
-
-            document.getElementById('openCountBadge').innerText = openTrades.length > 0 ? `(${openTrades.length})` : '';
-            document.getElementById('uiSip').innerText = formatMoney(monthlySip);
-            document.getElementById('inputSip').value = monthlySip;
-            
-            const pnlEl = document.getElementById('uiPnl');
-            pnlEl.innerText = formatMoney(monthlyPnl);
-            pnlEl.className = `text-2xl md:text-3xl font-bold ${colorize(monthlyPnl)}`;
-
-            const availEl = document.getElementById('uiAvailable');
-            availEl.innerText = formatMoney(availableFunds);
-            if (availableFunds < 0) availEl.classList.replace('text-blue-400', 'text-rose-500');
-            else availEl.classList.replace('text-rose-500', 'text-blue-400');
-
-            document.getElementById('uiGlobalSip').innerText = formatMoney(globalSip);
-            document.getElementById('uiGlobalPnl').innerText = formatMoney(globalPnl);
-            document.getElementById('uiTotalVal').innerText = formatMoney(globalSip + globalPnl);
-            
-            const roiEl = document.getElementById('uiGlobalRoi');
-            roiEl.innerText = pctFormatter.format(globalRoi);
-            roiEl.className = `text-sm font-extrabold ${colorize(globalPnl)}`;
-
-            renderTable();
-        }
-
-        // --- NEW: Caching Logic implemented in Fetch ---
         async function fetchDashboardData() {
+            showLoader(true);
             const month = document.getElementById('monthSelector').value;
-            
-            // 1. INSTANT LOAD FROM LOCAL CACHE
-            const cacheKey = 'krish_journal_' + month;
-            const cachedData = localStorage.getItem(cacheKey);
-            if (cachedData) {
-                renderDataToUI(JSON.parse(cachedData));
-            } else {
-                showLoader(true); // Only spin if we have zero cached data
-            }
-
-            // 2. SILENT BACKGROUND SYNC WITH GOOGLE
             try {
                 const response = await fetch(`${SCRIPT_URL}?month=${encodeURIComponent(month)}`);
                 const data = await response.json();
                 if(data.error) throw new Error(data.error);
 
-                // 3. SAVE FRESH DATA TO CACHE AND UPDATE UI
-                localStorage.setItem(cacheKey, JSON.stringify(data));
-                renderDataToUI(data);
+                allTrades = data.trades || [];
+                allTrades.sort((a, b) => {
+                    if (a.status === 'Open' && b.status !== 'Open') return -1;
+                    if (a.status !== 'Open' && b.status === 'Open') return 1;
+                    return 0;
+                });
 
-            } catch (err) { 
-                if(!cachedData) alert("Network Error: " + err.message); 
-            } finally { 
-                showLoader(false); 
-            }
+                const openTrades = allTrades.filter(t => t.status === 'Open');
+                const totalInvestedOpen = openTrades.reduce((sum, t) => sum + (Number(t.invested) || 0), 0);
+                
+                const monthlySip = Number(data.sip) || 0;
+                const monthlyPnl = Number(data.pnl) || 0;
+                const availableFunds = (monthlySip + monthlyPnl) - totalInvestedOpen;
+                
+                const globalSip = Number(data.globalSip) || 0;
+                const globalPnl = Number(data.globalPnl) || 0;
+                const globalRoi = globalSip > 0 ? (globalPnl / globalSip) : 0;
+
+                document.getElementById('openCountBadge').innerText = openTrades.length > 0 ? `(${openTrades.length})` : '';
+                document.getElementById('uiSip').innerText = formatMoney(monthlySip);
+                document.getElementById('inputSip').value = monthlySip;
+                
+                const pnlEl = document.getElementById('uiPnl');
+                pnlEl.innerText = formatMoney(monthlyPnl);
+                pnlEl.className = `text-2xl md:text-3xl font-bold ${colorize(monthlyPnl)}`;
+
+                const availEl = document.getElementById('uiAvailable');
+                availEl.innerText = formatMoney(availableFunds);
+                if (availableFunds < 0) availEl.classList.replace('text-blue-400', 'text-rose-500');
+                else availEl.classList.replace('text-rose-500', 'text-blue-400');
+
+                document.getElementById('uiGlobalSip').innerText = formatMoney(globalSip);
+                document.getElementById('uiGlobalPnl').innerText = formatMoney(globalPnl);
+                document.getElementById('uiTotalVal').innerText = formatMoney(globalSip + globalPnl);
+                
+                const roiEl = document.getElementById('uiGlobalRoi');
+                roiEl.innerText = pctFormatter.format(globalRoi);
+                roiEl.className = `text-sm font-extrabold ${colorize(globalPnl)}`;
+
+                renderTable();
+
+            } catch (err) { alert("Error: " + err.message); } 
+            finally { showLoader(false); }
         }
 
         async function postData(payload, btnId) {
@@ -413,11 +393,11 @@
                 if(payload.action === 'rollover' && data.message) alert(data.message);
 
                 closeModals();
-                // Fetch fresh data after an update
                 fetchDashboardData(); 
             } catch (err) { alert("Action failed: " + err.message); } 
             finally {
                 if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; btn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+                showLoader(false);
             }
         }
 
@@ -446,8 +426,11 @@
 
         function openEditModal(trade) { 
             document.getElementById('editHeader').innerText = trade.stock; 
+            
+            // FIXED: Rounded Avg Entry in the Modal Subtext
             const formattedEntry = trade.entry ? Number(trade.entry).toFixed(2) : '0.00';
             document.getElementById('editSubtext').innerText = `Current Qty: ${trade.qty} | Avg Entry: ₹${formattedEntry}`; 
+            
             document.getElementById('editRow').value = trade.row; 
             
             document.getElementById('editActionType').value = 'fullExit';
