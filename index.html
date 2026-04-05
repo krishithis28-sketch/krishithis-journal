@@ -185,6 +185,9 @@
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
         const pctFormatter = new Intl.NumberFormat('en-IN', { style: 'percent', minimumFractionDigits: 2 });
         const formatMoney = (v) => v ? formatter.format(v) : '-';
+        // NEW: Whole number formatter for the big dashboard widgets
+        const wholeFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+        const formatWholeMoney = (v) => v ? wholeFormatter.format(v) : '-';
         const colorize = (v) => v > 0 ? 'text-emerald-500 font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
 
         function showLoader(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; }
@@ -318,9 +321,9 @@
             if (available < 0) document.getElementById('uiAvailable').className = 'text-2xl md:text-3xl font-bold text-rose-500';
             else document.getElementById('uiAvailable').className = 'text-2xl md:text-3xl font-bold text-blue-400';
 
-            document.getElementById('uiGlobalSip').innerText = formatMoney(gSip);
-            document.getElementById('uiGlobalPnl').innerText = formatMoney(gPnl);
-            document.getElementById('uiTotalVal').innerText = formatMoney(gSip + gPnl);
+            document.getElementById('uiGlobalSip').innerText = formatWholeMoney(gSip);
+            document.getElementById('uiGlobalPnl').innerText = formatWholeMoney(gPnl);
+            document.getElementById('uiTotalVal').innerText = formatWholeMoney(gSip + gPnl);
             
             document.getElementById('uiGlobalRoi').innerText = pctFormatter.format(gSip > 0 ? gPnl / gSip : 0);
             document.getElementById('uiGlobalRoi').className = `text-sm font-extrabold ${colorize(gPnl)}`;
