@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* =========================================
-           DARK MODE (Default - Institutional Blue/Purple)
+           DARK MODE (Default)
            ========================================= */
         :root { 
             --bg-color: #0f172a; 
@@ -22,6 +22,8 @@
             --row-hover: rgba(255,255,255,0.05); 
             --th-bg: rgba(0,0,0,0.2); 
             --input-bg: #1e293b; 
+            
+            /* ROI Badge */
             --badge-bg: rgba(30, 41, 59, 0.6); 
             --badge-border: rgba(255,255,255,0.1); 
             --badge-text: #cbd5e1; 
@@ -31,26 +33,25 @@
             --radius-btn: 8px;
             --shadow-panel: none;
             
-            /* Brand Colors (Dark) */
-            --color-primary: #3b82f6; /* Blue */
-            --color-swing: #60a5fa;   /* Light Blue */
-            --color-sell: #c084fc;    /* Light Purple */
-            --bg-primary-btn: #2563eb; 
-            --bg-sell-btn: #9333ea;
-            --tier3-swing-border: rgba(59, 130, 246, 0.2);
-            --tier3-sell-border: rgba(168, 85, 247, 0.3);
+            /* Brand Colors (Dark Mode) */
+            --color-primary: #ea580c; /* Dark Orange */
+            --color-swing: #ea580c;   /* Dark Orange */
+            --color-sell: #a855f7;    /* Purple */
+            --color-pnl: #10b981;     /* Emerald Green */
             
-            /* ROI Colors */
-            --roi-val-color: #10b981; /* Emerald */
+            --bg-primary-btn: #ea580c; 
+            --bg-sell-btn: #9333ea;
+            --tier3-swing-border: rgba(234, 88, 12, 0.2);
+            --tier3-sell-border: rgba(168, 85, 247, 0.3);
         }
         
         /* =========================================
-           LIGHT MODE (Organic Teal & Golden Orange)
+           LIGHT MODE (Organic)
            ========================================= */
         [data-theme="light"] { 
-            /* Deeper, warmer background for better contrast against white cards */
-            --bg-color: #E8EFEA; 
-            --body-bg: linear-gradient(135deg, #E6EDE8 0%, #F0F4F2 100%);
+            /* Deeper, more visible sage background for high contrast */
+            --bg-color: #D4DFD8; 
+            --body-bg: linear-gradient(135deg, #D4DFD8 0%, #E3EBE5 100%);
             --text-main: #1E293B; 
             --text-muted: #64748B; 
             --panel-bg: #FFFFFF; 
@@ -59,38 +60,38 @@
             --th-bg: rgba(0,0,0,0.02); 
             --input-bg: #F8FAFC; 
             
-            /* Warm Amber ROI Badge */
-            --badge-bg: #FEF3C7; 
-            --badge-border: #FDE68A; 
-            --badge-text: #92400E; 
+            /* ROI Badge */
+            --badge-bg: #F0FDF4; 
+            --badge-border: #BBF7D0; 
+            --badge-text: #166534; 
             
             /* Organic Shapes & Popping Shadows */
             --radius-panel: 28px; 
             --radius-btn: 9999px; 
-            --shadow-panel: 0 12px 36px rgba(15, 118, 110, 0.08); /* Soft teal-tinted shadow */
+            --shadow-panel: 0 12px 36px rgba(0, 0, 0, 0.08);
             
-            /* Brand Colors (Light) - Teal & Orange */
-            --color-primary: #0F766E; /* Deep Elegant Teal */
-            --color-swing: #0D9488;   /* Vibrant Teal */
-            --color-sell: #D97706;    /* Rich Golden Orange */
-            --bg-primary-btn: #0F766E; 
-            --bg-sell-btn: #D97706;
+            /* Brand Colors (Light Mode) */
+            --color-primary: #C2410C; /* Deep Dark Orange */
+            --color-swing: #C2410C;   /* Deep Dark Orange */
+            --color-sell: #7E22CE;    /* Deep Purple */
+            --color-pnl: #15803D;     /* Dark Green */
+            
+            --bg-primary-btn: #C2410C; 
+            --bg-sell-btn: #7E22CE;
             --tier3-swing-border: transparent;
             --tier3-sell-border: transparent;
-            
-            /* ROI Colors */
-            --roi-val-color: #D97706; /* Golden Orange matches ROI badge */
         }
 
         /* --- Dynamic Utility Classes --- */
         .text-brand-main { color: var(--color-primary); transition: color 0.4s ease; }
         .text-brand-swing { color: var(--color-swing); transition: color 0.4s ease; }
         .text-brand-sell { color: var(--color-sell); transition: color 0.4s ease; }
+        .text-brand-pnl { color: var(--color-pnl); transition: color 0.4s ease; }
+        
         .bg-brand-main { background-color: var(--bg-primary-btn); color: white; transition: background-color 0.4s ease; }
         .bg-brand-sell { background-color: var(--bg-sell-btn); color: white; transition: background-color 0.4s ease; }
         .border-brand-main { border-color: var(--color-primary); }
         .border-brand-sell { border-color: var(--color-sell); }
-        .text-roi { color: var(--roi-val-color); }
 
         body { background: var(--body-bg); color: var(--text-main); font-family: -apple-system, sans-serif; transition: all 0.4s ease; -webkit-tap-highlight-color: transparent; min-height: 100vh;}
         
@@ -143,26 +144,40 @@
             <p class="text-4xl md:text-5xl font-extrabold text-brand-main mb-2 relative z-10" id="uiTotalVal">₹0</p>
             <div class="inline-block px-4 py-1 rounded-full border relative z-10" style="background-color: var(--badge-bg); border-color: var(--badge-border);">
                 <span class="text-sm font-bold" style="color: var(--badge-text);">All-Time ROI: </span>
-                <span class="text-sm font-extrabold text-roi" id="uiGlobalRoi">0.00%</span>
+                <span class="text-sm font-extrabold text-brand-pnl" id="uiGlobalRoi">0.00%</span>
             </div>
         </div>
+        
         <div class="grid grid-cols-2 gap-4">
-            <div class="glass-panel p-6 text-center"><p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative SIP Added</p><p class="text-2xl font-bold" id="uiGlobalSip">₹0</p></div>
-            <div class="glass-panel p-6 text-center"><p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative Realized P&L</p><p class="text-2xl font-bold" id="uiGlobalPnl">₹0</p></div>
+            <div class="glass-panel p-6 text-center">
+                <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative SIP Added</p>
+                <p class="text-2xl font-bold">
+                    <span id="uiGlobalSip">₹0</span>
+                    <span class="emoji-dark ml-1 opacity-80">🏦</span><span class="emoji-light ml-1 opacity-80">🧺</span>
+                </p>
+            </div>
+            <div class="glass-panel p-6 text-center">
+                <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative Realized P&L</p>
+                <p class="text-2xl font-bold text-brand-pnl">
+                    <span id="uiGlobalPnl">₹0</span>
+                    <span class="emoji-dark ml-1 opacity-80">💵</span><span class="emoji-light ml-1 opacity-80">🌳</span>
+                </p>
+            </div>
         </div>
+        
         <div class="grid grid-cols-2 gap-4">
             <div class="glass-panel p-6 text-center border-t-2" style="border-top-color: var(--tier3-swing-border);">
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">SWINGIO</p>
                 <p class="text-2xl font-bold text-brand-swing">
                     <span id="uiSwingioPnl">₹0</span> 
-                    <span class="emoji-dark">📈</span><span class="emoji-light">🌱</span>
+                    <span class="emoji-dark ml-1 opacity-80">📈</span><span class="emoji-light ml-1 opacity-80">🌱</span>
                 </p>
             </div>
             <div class="glass-panel p-6 text-center border-t-2" style="border-top-color: var(--tier3-sell-border);">
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">SELLIO</p>
                 <p class="text-2xl font-bold text-brand-sell">
                     <span id="uiSellioPnl">₹0</span> 
-                    <span class="emoji-dark">⏳</span><span class="emoji-light">🪴</span>
+                    <span class="emoji-dark ml-1 opacity-80">⏳</span><span class="emoji-light ml-1 opacity-80">🪴</span>
                 </p>
             </div>
         </div>
@@ -303,7 +318,7 @@
             </div>
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="btn-shape flex-1 py-3 bg-slate-500/20 font-bold">Cancel</button>
-                <button onclick="saveTradeUpdate()" class="btn-shape flex-1 py-3 bg-emerald-600 text-white font-bold">Update</button>
+                <button onclick="saveTradeUpdate()" class="btn-shape flex-1 py-3 bg-brand-pnl text-white font-bold">Update</button>
             </div>
         </div>
     </div>
@@ -322,7 +337,7 @@
         const formatMoney = (v) => v ? formatter.format(v) : '-';
         const wholeFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
         const formatWholeMoney = (v) => v ? wholeFormatter.format(v) : '-';
-        const colorize = (v) => v > 0 ? 'text-emerald-500 font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
+        const colorize = (v) => v > 0 ? 'text-brand-pnl font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
 
         function showLoader(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; }
         function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden')); }
@@ -500,13 +515,13 @@
                 document.getElementById('wrapperOptionType').classList.remove('hidden');
                 document.getElementById('wrapperMargin').classList.remove('hidden');
                 document.getElementById('lblAddEntry').innerText = "Premium Received (₹)";
-                document.getElementById('btnExecuteTrade').className = "btn-shape flex-1 py-3 bg-brand-sell font-bold";
+                document.getElementById('btnExecuteTrade').className = "btn-shape flex-1 py-3 bg-brand-sell text-white font-bold";
             } else {
                 document.getElementById('wrapperSetup').classList.remove('hidden');
                 document.getElementById('wrapperOptionType').classList.add('hidden');
                 document.getElementById('wrapperMargin').classList.add('hidden');
                 document.getElementById('lblAddEntry').innerText = "Entry Price (₹)";
-                document.getElementById('btnExecuteTrade').className = "btn-shape flex-1 py-3 bg-brand-main font-bold";
+                document.getElementById('btnExecuteTrade').className = "btn-shape flex-1 py-3 bg-brand-main text-white font-bold";
             }
             document.getElementById('addModal').classList.remove('hidden'); 
         }
