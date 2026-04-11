@@ -9,23 +9,74 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --bg-color: #0f172a; --text-main: #f8fafc; --text-muted: #94a3b8; --panel-bg: rgba(30, 41, 59, 0.8); --border-color: rgba(255,255,255,0.05); --row-hover: rgba(255,255,255,0.05); --th-bg: rgba(0,0,0,0.2); --input-bg: #1e293b; --badge-bg: rgba(30, 41, 59, 0.6); --badge-border: rgba(255,255,255,0.1); --badge-text: #cbd5e1; }
-        [data-theme="light"] { --bg-color: #e2e8f0; --text-main: #0f172a; --text-muted: #64748b; --panel-bg: rgba(255, 255, 255, 0.95); --border-color: rgba(0,0,0,0.1); --row-hover: rgba(0,0,0,0.03); --th-bg: rgba(0,0,0,0.05); --input-bg: #f8fafc; --badge-bg: rgba(255, 255, 255, 0.9); --badge-border: rgba(0,0,0,0.2); --badge-text: #475569; }
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: -apple-system, sans-serif; transition: background-color 0.3s, color 0.3s; -webkit-tap-highlight-color: transparent; }
-        .glass-panel { background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; transition: all 0.3s;}
+        /* DARK MODE (Default - Institutional) */
+        :root { 
+            --bg-color: #0f172a; 
+            --text-main: #f8fafc; 
+            --text-muted: #94a3b8; 
+            --panel-bg: rgba(30, 41, 59, 0.8); 
+            --border-color: rgba(255,255,255,0.05); 
+            --row-hover: rgba(255,255,255,0.05); 
+            --th-bg: rgba(0,0,0,0.2); 
+            --input-bg: #1e293b; 
+            --badge-bg: rgba(30, 41, 59, 0.6); 
+            --badge-border: rgba(255,255,255,0.1); 
+            --badge-text: #cbd5e1; 
+            --radius-panel: 16px;
+            --radius-btn: 8px;
+            --shadow-panel: none;
+            --tier3-swing-border: rgba(59, 130, 246, 0.2);
+            --tier3-sell-border: rgba(168, 85, 247, 0.3);
+            --body-bg: var(--bg-color);
+        }
+        
+        /* LIGHT MODE (Organic Growth) */
+        [data-theme="light"] { 
+            --bg-color: #f8faf9; 
+            --body-bg: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
+            --text-main: #0f172a; 
+            --text-muted: #64748b; 
+            --panel-bg: rgba(255, 255, 255, 0.9); 
+            --border-color: transparent; 
+            --row-hover: rgba(0,0,0,0.03); 
+            --th-bg: rgba(0,0,0,0.02); 
+            --input-bg: #ffffff; 
+            --badge-bg: rgba(255, 255, 255, 0.9); 
+            --badge-border: rgba(0,0,0,0.05); 
+            --badge-text: #475569; 
+            --radius-panel: 28px; /* Soft Organic Curves */
+            --radius-btn: 9999px; /* Pill shape buttons */
+            --shadow-panel: 0 20px 40px rgba(74, 222, 128, 0.08); /* Soft diffuse floating shadow */
+            --tier3-swing-border: transparent;
+            --tier3-sell-border: transparent;
+        }
+
+        body { background: var(--body-bg); color: var(--text-main); font-family: -apple-system, sans-serif; transition: all 0.4s ease; -webkit-tap-highlight-color: transparent; min-height: 100vh;}
+        
+        .glass-panel { background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); transition: all 0.4s ease;}
+        .btn-shape { border-radius: var(--radius-btn); transition: all 0.4s ease; }
+        
         .table-row { transition: background-color 0.2s; cursor: pointer; border-bottom: 1px solid var(--border-color); }
         .table-row:hover { background-color: var(--row-hover); }
         th { background-color: var(--th-bg); cursor: pointer; user-select: none; transition: background-color 0.2s; }
         th:hover { background-color: var(--row-hover); }
-        input, select { background-color: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 8px; width: 100%; font-size: 15px; outline: none; margin-top: 4px; transition: all 0.3s;}
+        input, select { background-color: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: var(--radius-btn); width: 100%; font-size: 15px; outline: none; margin-top: 4px; transition: all 0.3s; box-shadow: var(--shadow-panel);}
         input:focus, select:focus { border-color: #3b82f6; }
-        .modal-overlay { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }
+        
+        .modal-overlay { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); transition: opacity 0.3s; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .tab-btn { padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 14px; transition: all 0.2s; color: var(--text-muted); }
+        
+        .tab-btn { padding: 8px 16px; font-weight: bold; font-size: 14px; color: var(--text-muted); }
         .tab-btn.active { background-color: #3b82f6; color: white; }
+
+        /* Dynamic Emojis based on Theme */
+        .emoji-dark { display: inline; }
+        .emoji-light { display: none; }
+        [data-theme="light"] .emoji-dark { display: none; }
+        [data-theme="light"] .emoji-light { display: inline; filter: hue-rotate(-10deg) saturate(1.2); }
     </style>
 </head>
 <body class="p-4 md:p-6 min-h-screen flex flex-col items-center">
@@ -34,13 +85,13 @@
         <h1 class="text-2xl font-bold tracking-wide">KrishIthis<span class="text-blue-500">Journal</span></h1>
         <div class="flex items-center gap-3">
             <div id="loader" class="spinner hidden"></div>
-            <button onclick="toggleTheme()" class="glass-panel p-2 rounded-full shadow-sm text-xl" id="themeIcon">☀️</button>
+            <button onclick="toggleTheme()" class="glass-panel p-2 rounded-full shadow-sm text-xl border border-[var(--border-color)]" id="themeIcon">☀️</button>
         </div>
     </div>
 
-    <div class="w-full max-w-7xl flex gap-2 mb-6 glass-panel p-2">
-        <button id="tabMonthly" onclick="switchTab('monthly')" class="tab-btn active flex-1">Monthly Log</button>
-        <button id="tabMaster" onclick="switchTab('master')" class="tab-btn flex-1">Portfolio Summary</button>
+    <div class="w-full max-w-7xl flex gap-2 mb-6 glass-panel p-2 btn-shape" style="border-radius: var(--radius-btn);">
+        <button id="tabMonthly" onclick="switchTab('monthly')" class="tab-btn active flex-1 btn-shape">Monthly Log</button>
+        <button id="tabMaster" onclick="switchTab('master')" class="tab-btn flex-1 btn-shape">Portfolio Summary</button>
     </div>
 
     <div id="viewMaster" class="w-full max-w-7xl hidden space-y-4">
@@ -57,8 +108,20 @@
             <div class="glass-panel p-6 text-center"><p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative Realized P&L</p><p class="text-2xl font-bold" id="uiGlobalPnl">₹0</p></div>
         </div>
         <div class="grid grid-cols-2 gap-4">
-            <div class="glass-panel p-6 text-center border-t-2 border-blue-500/20"><p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">SWINGIO</p><p class="text-2xl font-bold text-blue-400" id="uiSwingioPnl">₹0 📈</p></div>
-            <div class="glass-panel p-6 text-center border-t-2 border-purple-500/30"><p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">SELLIO</p><p class="text-2xl font-bold text-purple-400" id="uiSellioPnl">₹0 ⏳</p></div>
+            <div class="glass-panel p-6 text-center border-t-2" style="border-top-color: var(--tier3-swing-border);">
+                <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">SWINGIO</p>
+                <p class="text-2xl font-bold text-blue-400">
+                    <span id="uiSwingioPnl">₹0</span> 
+                    <span class="emoji-dark">📈</span><span class="emoji-light">🌱</span>
+                </p>
+            </div>
+            <div class="glass-panel p-6 text-center border-t-2" style="border-top-color: var(--tier3-sell-border);">
+                <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">SELLIO</p>
+                <p class="text-2xl font-bold text-purple-400">
+                    <span id="uiSellioPnl">₹0</span> 
+                    <span class="emoji-dark">⏳</span><span class="emoji-light">🪴</span>
+                </p>
+            </div>
         </div>
     </div>
 
@@ -66,7 +129,7 @@
         <div class="flex flex-col md:flex-row justify-between gap-4 mb-4">
             <div class="relative w-full md:w-64">
                 <input type="hidden" id="monthSelector" value="Mar 2026">
-                <button id="customMonthBtn" class="w-full bg-[var(--input-bg)] border border-[var(--border-color)] p-3 rounded-lg text-left font-bold text-lg flex justify-between items-center transition-colors" onclick="toggleDropdown()">
+                <button id="customMonthBtn" class="btn-shape w-full bg-[var(--input-bg)] border border-[var(--border-color)] p-3 text-left font-bold text-lg flex justify-between items-center transition-colors shadow-sm" onclick="toggleDropdown()">
                     <span id="selectedMonthText">Mar 2026</span>
                     <span class="text-[var(--text-muted)] text-sm">▼</span>
                 </button>
@@ -117,26 +180,26 @@
                 </table>
             </div>
             <div class="p-3 border-t border-[var(--border-color)] flex items-center gap-3">
-                <button onclick="openAddModal('Swing')" class="flex-1 py-3 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-dashed border-blue-500/50 rounded-lg font-bold transition-colors">+ Add Swingio</button>
-                <button onclick="openAddModal('Sellio')" class="flex-1 py-3 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border border-dashed border-purple-500/50 rounded-lg font-bold transition-colors">+ Add Sellio</button>
-                <button id="btnRollover" onclick="rolloverTrades()" class="px-4 py-3 text-[var(--text-muted)] bg-[var(--input-bg)] border border-[var(--border-color)] rounded-lg text-xs font-bold transition-colors whitespace-nowrap">⏩ Rollover</button>
+                <button onclick="openAddModal('Swing')" class="btn-shape flex-1 py-3 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-dashed border-blue-500/50 font-bold transition-colors">+ Add Swingio</button>
+                <button onclick="openAddModal('Sellio')" class="btn-shape flex-1 py-3 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border border-dashed border-purple-500/50 font-bold transition-colors">+ Add Sellio</button>
+                <button id="btnRollover" onclick="rolloverTrades()" class="btn-shape px-4 py-3 text-[var(--text-muted)] bg-[var(--input-bg)] border border-[var(--border-color)] text-xs font-bold transition-colors whitespace-nowrap shadow-sm">⏩ Rollover</button>
             </div>
         </div>
     </div>
 
     <div id="sipModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+        <div class="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-sm rounded-3xl p-6 shadow-2xl transition-all">
             <h2 class="text-xl font-bold mb-4">Update Monthly SIP</h2>
             <input type="number" id="inputSip" class="mb-6 !p-3">
             <div class="flex gap-3">
-                <button onclick="closeModals()" class="flex-1 py-3 bg-slate-500/20 rounded-xl font-bold">Cancel</button>
-                <button onclick="saveSip()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Save</button>
+                <button onclick="closeModals()" class="btn-shape flex-1 py-3 bg-slate-500/20 font-bold">Cancel</button>
+                <button onclick="saveSip()" class="btn-shape flex-1 py-3 bg-blue-600 text-white font-bold">Save</button>
             </div>
         </div>
     </div>
 
     <div id="addModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+        <div class="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-sm rounded-3xl p-6 shadow-2xl transition-all">
             <h2 class="text-xl font-bold mb-4" id="addModalTitle">Log New Trade</h2>
             <input type="hidden" id="addTradeType" value="Swing">
             <div class="space-y-3 mb-6">
@@ -157,17 +220,17 @@
                 </div>
             </div>
             <div class="flex gap-3">
-                <button onclick="closeModals()" class="flex-1 py-3 bg-slate-500/20 rounded-xl font-bold">Cancel</button>
-                <button id="btnExecuteTrade" onclick="saveNewTrade()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Execute</button>
+                <button onclick="closeModals()" class="btn-shape flex-1 py-3 bg-slate-500/20 font-bold">Cancel</button>
+                <button id="btnExecuteTrade" onclick="saveNewTrade()" class="btn-shape flex-1 py-3 bg-blue-600 text-white font-bold">Execute</button>
             </div>
         </div>
     </div>
 
     <div id="editModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+        <div class="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-sm rounded-3xl p-6 shadow-2xl transition-all">
             <div class="flex justify-between items-start mb-4 border-b border-[var(--border-color)] pb-3">
                 <div><h2 class="text-xl font-bold mb-1" id="editHeader">Manage Trade</h2><p class="text-xs text-[var(--text-muted)]" id="editSubtext"></p></div>
-                <button onclick="deleteTrade()" class="text-rose-500 bg-rose-500/10 px-3 py-1.5 rounded-lg text-xs font-bold">Delete</button>
+                <button onclick="deleteTrade()" class="btn-shape text-rose-500 bg-rose-500/10 px-3 py-1.5 text-xs font-bold">Delete</button>
             </div>
             <input type="hidden" id="editId">
             <input type="hidden" id="editTradeType">
@@ -195,8 +258,8 @@
                 </div>
             </div>
             <div class="flex gap-3">
-                <button onclick="closeModals()" class="flex-1 py-3 bg-slate-500/20 rounded-xl font-bold">Cancel</button>
-                <button onclick="saveTradeUpdate()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold">Update</button>
+                <button onclick="closeModals()" class="btn-shape flex-1 py-3 bg-slate-500/20 font-bold">Cancel</button>
+                <button onclick="saveTradeUpdate()" class="btn-shape flex-1 py-3 bg-emerald-600 text-white font-bold">Update</button>
             </div>
         </div>
     </div>
@@ -223,7 +286,6 @@
         function switchTab(t) { document.getElementById('tabMonthly').classList.remove('active'); document.getElementById('tabMaster').classList.remove('active'); document.getElementById('viewMonthly').classList.add('hidden'); document.getElementById('viewMaster').classList.add('hidden'); if(t === 'monthly') { document.getElementById('tabMonthly').classList.add('active'); document.getElementById('viewMonthly').classList.remove('hidden'); } else { document.getElementById('tabMaster').classList.add('active'); document.getElementById('viewMaster').classList.remove('hidden'); } }
         function setSort(c) { if(sortCol === c) sortAsc = !sortAsc; else { sortCol = c; sortAsc = true; } renderTable(); }
 
-        // --- DROPDOWN LOGIC ---
         function populateMonths() {
             const menu = document.getElementById('customMonthMenu');
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -251,7 +313,6 @@
         function selectMonth(monthStr) { document.getElementById('selectedMonthText').innerText = monthStr; document.getElementById('monthSelector').value = monthStr; toggleDropdown(); fetchDashboardData(); }
         document.addEventListener('click', function(event) { const btn = document.getElementById('customMonthBtn'); const menu = document.getElementById('customMonthMenu'); if (!btn.contains(event.target) && !menu.contains(event.target)) { menu.classList.add('hidden'); } });
 
-        // --- DATA LOGIC ---
         async function fetchDashboardData() {
             const m = document.getElementById('monthSelector').value;
             showLoader(true);
@@ -317,8 +378,9 @@
             document.getElementById('uiGlobalRoi').innerText = pctFormatter.format(gSip > 0 ? gPnl / gSip : 0);
             document.getElementById('uiGlobalRoi').className = `text-sm font-extrabold ${colorize(gPnl)}`;
 
-            document.getElementById('uiSwingioPnl').innerText = `${formatWholeMoney(gPnlSwing)} 📈`;
-            document.getElementById('uiSellioPnl').innerText = `${formatWholeMoney(gPnlSellio)} ⏳`;
+            // Updated strictly numerical injection so emojis are handled via HTML/CSS Spans
+            document.getElementById('uiSwingioPnl').innerText = formatWholeMoney(gPnlSwing);
+            document.getElementById('uiSellioPnl').innerText = formatWholeMoney(gPnlSellio);
             
             renderTable();
         }
@@ -386,7 +448,6 @@
             });
         }
 
-        // --- DYNAMIC MODAL LOGIC ---
         function openAddModal(type) { 
             document.getElementById('addTradeType').value = type;
             document.getElementById('addModalTitle').innerText = type === 'Sellio' ? 'Log New Option Sale' : 'Log New Swing Trade';
@@ -397,13 +458,13 @@
                 document.getElementById('wrapperOptionType').classList.remove('hidden');
                 document.getElementById('wrapperMargin').classList.remove('hidden');
                 document.getElementById('lblAddEntry').innerText = "Premium Received (₹)";
-                document.getElementById('btnExecuteTrade').className = "flex-1 py-3 bg-purple-600 text-white rounded-xl font-bold";
+                document.getElementById('btnExecuteTrade').className = "btn-shape flex-1 py-3 bg-purple-600 text-white font-bold";
             } else {
                 document.getElementById('wrapperSetup').classList.remove('hidden');
                 document.getElementById('wrapperOptionType').classList.add('hidden');
                 document.getElementById('wrapperMargin').classList.add('hidden');
                 document.getElementById('lblAddEntry').innerText = "Entry Price (₹)";
-                document.getElementById('btnExecuteTrade').className = "flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold";
+                document.getElementById('btnExecuteTrade').className = "btn-shape flex-1 py-3 bg-blue-600 text-white font-bold";
             }
             document.getElementById('addModal').classList.remove('hidden'); 
         }
@@ -441,7 +502,6 @@
                 document.getElementById('optPartial').disabled = true;
                 document.getElementById('lblEditExit').innerText = "Premium Paid to Close (₹)";
                 
-                // Show the Margin input field and populate it
                 document.getElementById('wrapperEditMargin').classList.remove('hidden');
                 document.getElementById('editMargin').value = t.margin_blocked || '';
             } else {
@@ -449,7 +509,6 @@
                 document.getElementById('optPartial').disabled = false;
                 document.getElementById('lblEditExit').innerText = "Exit Price (₹)";
                 
-                // Hide the Margin input field for Swing trades
                 document.getElementById('wrapperEditMargin').classList.add('hidden');
             }
 
@@ -472,7 +531,6 @@
                     const exit = document.getElementById('editExit').value;
                     let payload = { status: status, exit_price: exit ? exit : null };
                     
-                    // NEW: Update margin if it is a Sellio trade
                     if (tradeType === 'Sellio') {
                         payload.margin_blocked = document.getElementById('editMargin').value;
                     }
@@ -500,7 +558,6 @@
             } catch (err) { alert("Update failed: " + err.message); showLoader(false); }
         }
 
-        // --- UTILS ---
         function toggleEditFields() { const v = document.getElementById('editActionType').value; const lblQty = document.getElementById('lblActionQty'); const lblPrice = document.getElementById('lblActionPrice'); document.getElementById('fieldsFullExit').classList.toggle('hidden', v !== 'fullExit'); document.getElementById('fieldsPartial').classList.toggle('hidden', v === 'fullExit'); if(v === 'addMore') { lblQty.innerText = "Shares Bought"; lblPrice.innerText = "Buy Price (₹)"; } if(v === 'partialSell') { lblQty.innerText = "Shares Sold"; lblPrice.innerText = "Sell Price (₹)"; } }
         async function saveSip() { showLoader(true); const m = document.getElementById('monthSelector').value; const s = document.getElementById('inputSip').value; await db.from('monthly_sip').upsert({ month: m, sip_amount: s }); closeModals(); fetchDashboardData(); }
         async function deleteTrade() { if(confirm("Delete this trade forever?")) { showLoader(true); await db.from('trades').delete().eq('id', document.getElementById('editId').value); closeModals(); fetchDashboardData(); } }
@@ -519,7 +576,6 @@
             }
         }
         
-        // Initialize
         populateMonths(); fetchDashboardData();
     </script>
 </body>
