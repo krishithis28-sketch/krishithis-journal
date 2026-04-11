@@ -23,30 +23,40 @@
             --th-bg: rgba(0,0,0,0.2); 
             --input-bg: #1e293b; 
             
-            /* Original ROI Badge */
+            /* ROI Badge */
             --badge-bg: rgba(30, 41, 59, 0.6); 
             --badge-border: rgba(255,255,255,0.1); 
             --badge-text: #cbd5e1; 
             
-            /* Original Shapes & Shadows */
+            /* Shapes & Shadows */
             --radius-panel: 16px;
             --radius-btn: 8px;
             --shadow-panel: none;
             
-            /* Original Brand Colors */
-            --color-primary: #3b82f6; /* Blue */
+            /* Brand Colors (Dark Mode) */
+            --color-primary: #3b82f6; /* Classic Blue */
             --color-swing: #60a5fa;   /* Light Blue */
             --color-sell: #c084fc;    /* Light Purple */
-            --color-pnl: #f8fafc;     /* Standard White for Dark Mode Text */
+            --color-pnl: #f8fafc;     /* White for DM P&L */
             
-            --bg-primary-btn: #2563eb; /* Blue button */
-            --bg-sell-btn: #9333ea;    /* Purple button */
+            --bg-primary-btn: #2563eb; 
+            --bg-sell-btn: #9333ea;
             --tier3-swing-border: rgba(59, 130, 246, 0.2);
             --tier3-sell-border: rgba(168, 85, 247, 0.3);
+
+            /* BUG FIX: Hardcoded RGBA for perfect transparency */
+            --badge-open-bg: rgba(59, 130, 246, 0.2); 
+            --badge-open-text: #3b82f6;
+            --badge-opt-bg: rgba(168, 85, 247, 0.2);
+            --badge-opt-text: #c084fc;
+            --btn-swing-bg: rgba(59, 130, 246, 0.1);
+            --btn-swing-border: rgba(59, 130, 246, 0.5);
+            --btn-sell-bg: rgba(168, 85, 247, 0.1);
+            --btn-sell-border: rgba(168, 85, 247, 0.5);
         }
         
         /* =========================================
-           LIGHT MODE (Organic & Custom Colors)
+           LIGHT MODE (Organic Teal & Colors)
            ========================================= */
         [data-theme="light"] { 
             --bg-color: #D4DFD8; 
@@ -69,16 +79,26 @@
             --radius-btn: 9999px; 
             --shadow-panel: 0 12px 36px rgba(0, 0, 0, 0.08);
             
-            /* Organic Custom Colors */
-            --color-primary: #3b82f6; /* Keep main UI accents blue to match title */
+            /* Custom Colors */
+            --color-primary: #0F766E; /* Elegant Teal for Headers/Total Value */
             --color-swing: #C2410C;   /* Dark Orange */
             --color-sell: #7E22CE;    /* Deep Purple */
             --color-pnl: #15803D;     /* Dark Green */
             
-            --bg-primary-btn: #C2410C; /* Dark Orange button */
-            --bg-sell-btn: #7E22CE;    /* Purple button */
+            --bg-primary-btn: #0F766E; 
+            --bg-sell-btn: #7E22CE;
             --tier3-swing-border: transparent;
             --tier3-sell-border: transparent;
+
+            /* BUG FIX: Hardcoded RGBA for perfect transparency */
+            --badge-open-bg: rgba(15, 118, 110, 0.15); /* Teal */
+            --badge-open-text: #0F766E;
+            --badge-opt-bg: rgba(126, 34, 206, 0.15); /* Purple */
+            --badge-opt-text: #7E22CE;
+            --btn-swing-bg: rgba(194, 65, 12, 0.08);
+            --btn-swing-border: rgba(194, 65, 12, 0.4);
+            --btn-sell-bg: rgba(126, 34, 206, 0.08);
+            --btn-sell-border: rgba(126, 34, 206, 0.4);
         }
 
         /* --- Dynamic Utility Classes --- */
@@ -89,6 +109,7 @@
         
         .bg-brand-main { background-color: var(--bg-primary-btn); color: white; transition: background-color 0.4s ease; }
         .bg-brand-sell { background-color: var(--bg-sell-btn); color: white; transition: background-color 0.4s ease; }
+        .border-brand-main { border-color: var(--color-primary); }
 
         body { background: var(--body-bg); color: var(--text-main); font-family: -apple-system, sans-serif; transition: all 0.4s ease; -webkit-tap-highlight-color: transparent; min-height: 100vh;}
         
@@ -109,7 +130,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         .tab-btn { padding: 8px 16px; font-weight: bold; font-size: 14px; color: var(--text-muted); }
-        .tab-btn.active { background-color: #3b82f6; color: white; }
+        .tab-btn.active { background-color: var(--bg-primary-btn); color: white; }
 
         /* Dynamic Emojis */
         .emoji-dark { display: inline; }
@@ -121,7 +142,7 @@
 <body class="p-4 md:p-6 min-h-screen flex flex-col items-center">
 
     <div class="w-full max-w-7xl flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold tracking-wide">KrishIthis<span class="text-blue-500">Journal</span></h1>
+        <h1 class="text-2xl font-bold tracking-wide">KrishIthis<span class="text-brand-main">Journal</span></h1>
         <div class="flex items-center gap-3">
             <div id="loader" class="spinner hidden"></div>
             <button onclick="toggleTheme()" class="glass-panel p-2 rounded-full shadow-sm text-xl border border-[var(--border-color)]" id="themeIcon">☀️</button>
@@ -138,10 +159,10 @@
             <div class="absolute inset-0 opacity-5 bg-gradient-to-br from-blue-500 to-purple-500 pointer-events-none"></div>
             
             <p class="text-[11px] font-bold uppercase tracking-[0.15em] mb-2 text-[var(--text-muted)] relative z-10">Total Portfolio Value</p>
-            <p class="text-4xl md:text-5xl font-extrabold text-blue-500 mb-2 relative z-10" id="uiTotalVal">₹0</p>
+            <p class="text-4xl md:text-5xl font-extrabold text-brand-main mb-2 relative z-10" id="uiTotalVal">₹0</p>
             <div class="inline-block px-4 py-1 rounded-full border relative z-10" style="background-color: var(--badge-bg); border-color: var(--badge-border);">
                 <span class="text-sm font-bold" style="color: var(--badge-text);">All-Time ROI: </span>
-                <span class="text-sm font-extrabold" id="uiGlobalRoi">0.00%</span>
+                <span class="text-sm font-extrabold text-brand-pnl" id="uiGlobalRoi">0.00%</span>
             </div>
         </div>
         
@@ -150,14 +171,14 @@
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative SIP Added</p>
                 <p class="text-2xl font-bold">
                     <span id="uiGlobalSip">₹0</span>
-                    <span class="emoji-light ml-1 opacity-80">🧺</span>
+                    <span class="emoji-dark ml-1 opacity-80">🏦</span><span class="emoji-light ml-1 opacity-80">🧺</span>
                 </p>
             </div>
             <div class="glass-panel p-6 text-center">
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative Realized P&L</p>
                 <p class="text-2xl font-bold text-brand-pnl">
                     <span id="uiGlobalPnl">₹0</span>
-                    <span class="emoji-light ml-1 opacity-80">🌳</span>
+                    <span class="emoji-dark ml-1 opacity-80">💵</span><span class="emoji-light ml-1 opacity-80">🌳</span>
                 </p>
             </div>
         </div>
@@ -203,7 +224,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="glass-panel p-5 cursor-pointer hover:border-blue-500 transition-colors" onclick="openSipModal()">
+            <div class="glass-panel p-5 cursor-pointer hover:border-[var(--color-primary)] transition-colors" onclick="openSipModal()">
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)] flex justify-between">Monthly SIP ✎</p>
                 <p class="text-2xl md:text-3xl font-bold" id="uiSip">₹0</p>
             </div>
@@ -212,9 +233,9 @@
                 <p class="text-2xl md:text-3xl font-bold" id="uiPnl">₹0</p>
             </div>
             <div class="glass-panel p-5 relative overflow-hidden">
-                <div class="absolute inset-0 opacity-10 bg-blue-500 pointer-events-none"></div>
+                <div class="absolute inset-0 opacity-10 bg-[var(--color-primary)] pointer-events-none"></div>
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)] relative z-10">Global Available Funds</p>
-                <p class="text-2xl md:text-3xl font-bold text-blue-400 relative z-10" id="uiAvailable">₹0</p>
+                <p class="text-2xl md:text-3xl font-bold text-brand-main relative z-10" id="uiAvailable">₹0</p>
             </div>
         </div>
 
@@ -223,7 +244,7 @@
                 <table class="w-full text-left border-collapse whitespace-nowrap text-sm">
                     <thead>
                         <tr class="text-[var(--text-muted)] text-[10px] uppercase tracking-wider border-b border-[var(--border-color)]">
-                            <th class="px-4 py-3 font-bold" onclick="setSort('stock')">Stock <span id="openCountBadge" class="text-blue-500"></span> ↕</th>
+                            <th class="px-4 py-3 font-bold" onclick="setSort('stock')">Stock <span id="openCountBadge" class="text-brand-main"></span> ↕</th>
                             <th class="px-4 py-3 font-bold hidden md:table-cell" onclick="setSort('setup')">Details ↕</th>
                             <th class="px-4 py-3 font-bold text-right" onclick="setSort('invested')">Capital/Margin ↕</th>
                             <th class="px-4 py-3 font-bold text-right">Qty x Entry</th>
@@ -236,8 +257,8 @@
                 </table>
             </div>
             <div class="p-3 border-t border-[var(--border-color)] flex items-center gap-3">
-                <button onclick="openAddModal('Swing')" class="btn-shape flex-1 py-3 bg-blue-600/10 hover:bg-blue-600/20 text-brand-swing border border-dashed border-blue-500/50 font-bold transition-colors">+ Add Swingio</button>
-                <button onclick="openAddModal('Sellio')" class="btn-shape flex-1 py-3 bg-purple-600/10 hover:bg-purple-600/20 text-brand-sell border border-dashed border-purple-500/50 font-bold transition-colors">+ Add Sellio</button>
+                <button onclick="openAddModal('Swing')" style="background-color: var(--btn-swing-bg); border-color: var(--btn-swing-border);" class="btn-shape flex-1 py-3 text-brand-swing border border-dashed font-bold transition-colors">+ Add Swingio</button>
+                <button onclick="openAddModal('Sellio')" style="background-color: var(--btn-sell-bg); border-color: var(--btn-sell-border);" class="btn-shape flex-1 py-3 text-brand-sell border border-dashed font-bold transition-colors">+ Add Sellio</button>
                 <button id="btnRollover" onclick="rolloverTrades()" class="btn-shape px-4 py-3 text-[var(--text-muted)] bg-[var(--input-bg)] border border-[var(--border-color)] text-xs font-bold transition-colors whitespace-nowrap shadow-sm">⏩ Rollover</button>
             </div>
         </div>
@@ -249,7 +270,7 @@
             <input type="number" id="inputSip" class="mb-6 !p-3">
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="btn-shape flex-1 py-3 bg-slate-500/20 font-bold">Cancel</button>
-                <button onclick="saveSip()" class="btn-shape flex-1 py-3 bg-brand-main font-bold">Save</button>
+                <button onclick="saveSip()" class="btn-shape flex-1 py-3 bg-brand-main font-bold text-white">Save</button>
             </div>
         </div>
     </div>
@@ -334,7 +355,7 @@
         const formatMoney = (v) => v ? formatter.format(v) : '-';
         const wholeFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
         const formatWholeMoney = (v) => v ? wholeFormatter.format(v) : '-';
-        const colorize = (v) => v > 0 ? 'text-emerald-500 font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
+        const colorize = (v) => v > 0 ? 'text-brand-pnl font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
 
         function showLoader(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; }
         function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden')); }
@@ -426,17 +447,16 @@
             
             document.getElementById('uiAvailable').innerText = formatWholeMoney(available);
             if (available < 0) document.getElementById('uiAvailable').className = 'text-2xl md:text-3xl font-bold text-rose-500';
-            else document.getElementById('uiAvailable').className = 'text-2xl md:text-3xl font-bold text-blue-400';
+            else document.getElementById('uiAvailable').className = 'text-2xl md:text-3xl font-bold text-brand-main';
 
             document.getElementById('uiGlobalSip').innerText = formatWholeMoney(gSip);
             document.getElementById('uiGlobalPnl').innerText = formatWholeMoney(gPnl);
             document.getElementById('uiTotalVal').innerText = formatWholeMoney(gSip + gPnl);
-            document.getElementById('uiGlobalRoi').innerText = pctFormatter.format(gSip > 0 ? gPnl / gSip : 0);
             
             document.getElementById('uiSwingioPnl').innerText = formatWholeMoney(gPnlSwing);
             document.getElementById('uiSellioPnl').innerText = formatWholeMoney(gPnlSellio);
             
-            // Fix Dynamic ROI Badge color
+            document.getElementById('uiGlobalRoi').innerText = pctFormatter.format(gSip > 0 ? gPnl / gSip : 0);
             document.getElementById('uiGlobalRoi').className = `text-sm font-extrabold ${colorize(gPnl)}`;
             
             renderTable();
@@ -484,11 +504,11 @@
                 const pnlPct = pnlValue ? (isSellio ? (pnlValue / t.margin_blocked) : (pnlValue / (t.qty * t.entry_price))) : null;
                 
                 let statusBadge = '';
-                if (t.status === 'Open') statusBadge = `<span class="bg-[var(--color-primary)] bg-opacity-20 text-[var(--color-primary)] px-2 py-0.5 rounded text-[10px] font-bold uppercase">Open</span>`;
+                if (t.status === 'Open') statusBadge = `<span style="background-color: var(--badge-open-bg); color: var(--badge-open-text);" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase">Open</span>`;
                 else if (t.status === 'Closed') statusBadge = `<span class="bg-[var(--th-bg)] text-[var(--text-muted)] px-2 py-0.5 rounded text-[10px] font-bold uppercase">Closed</span>`;
                 else statusBadge = `<span class="bg-slate-500/20 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Rolled</span>`;
                 
-                const typeBadge = isSellio ? `<span class="text-[9px] bg-[var(--color-sell)] bg-opacity-20 text-brand-sell px-1 py-0.5 rounded ml-1">OPT</span>` : '';
+                const typeBadge = isSellio ? `<span style="background-color: var(--badge-opt-bg); color: var(--badge-opt-text);" class="text-[9px] px-1 py-0.5 rounded ml-1">OPT</span>` : '';
                 const detailsStr = isSellio ? `<span class="text-brand-sell font-bold">${t.option_type || 'CE'}</span>` : (t.setup || '-');
                 const investedStr = isSellio ? `<span class="text-[10px] text-brand-sell">Margin: <br></span>${formatMoney(t.margin_blocked)}` : formatMoney(t.qty * t.entry_price);
 
@@ -515,13 +535,19 @@
                 document.getElementById('wrapperOptionType').classList.remove('hidden');
                 document.getElementById('wrapperMargin').classList.remove('hidden');
                 document.getElementById('lblAddEntry').innerText = "Premium Received (₹)";
-                document.getElementById('btnExecuteTrade').className = "btn-shape flex-1 py-3 bg-brand-sell text-white font-bold";
+                
+                const btnExecute = document.getElementById('btnExecuteTrade');
+                btnExecute.className = "btn-shape flex-1 py-3 text-white font-bold";
+                btnExecute.style.backgroundColor = "var(--bg-sell-btn)";
             } else {
                 document.getElementById('wrapperSetup').classList.remove('hidden');
                 document.getElementById('wrapperOptionType').classList.add('hidden');
                 document.getElementById('wrapperMargin').classList.add('hidden');
                 document.getElementById('lblAddEntry').innerText = "Entry Price (₹)";
-                document.getElementById('btnExecuteTrade').className = "btn-shape flex-1 py-3 bg-brand-main text-white font-bold";
+                
+                const btnExecute = document.getElementById('btnExecuteTrade');
+                btnExecute.className = "btn-shape flex-1 py-3 text-white font-bold";
+                btnExecute.style.backgroundColor = "var(--bg-primary-btn)";
             }
             document.getElementById('addModal').classList.remove('hidden'); 
         }
