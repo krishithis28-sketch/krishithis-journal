@@ -34,29 +34,30 @@
             --shadow-panel: none;
             
             /* Brand Colors (Dark Mode) */
-            --color-primary: #3b82f6; /* Classic Blue */
-            --color-swing: #60a5fa;   /* Light Blue */
-            --color-sell: #c084fc;    /* Light Purple */
-            --color-pnl: #f8fafc;     /* White for DM P&L */
+            --color-primary: #3b82f6; /* Classic Blue for Headers/Accents */
+            --color-total-val: #3b82f6; /* Classic Blue for Total Value */
+            --color-swing: #ea580c;   /* Dark Orange */
+            --color-sell: #a855f7;    /* Purple */
+            --color-pnl: #10b981;     /* Emerald Green for P&L */
             
             --bg-primary-btn: #2563eb; 
             --bg-sell-btn: #9333ea;
-            --tier3-swing-border: rgba(59, 130, 246, 0.2);
+            --tier3-swing-border: rgba(234, 88, 12, 0.2);
             --tier3-sell-border: rgba(168, 85, 247, 0.3);
 
-            /* BUG FIX: Hardcoded RGBA for perfect transparency */
+            /* Badges */
             --badge-open-bg: rgba(59, 130, 246, 0.2); 
             --badge-open-text: #3b82f6;
             --badge-opt-bg: rgba(168, 85, 247, 0.2);
             --badge-opt-text: #c084fc;
-            --btn-swing-bg: rgba(59, 130, 246, 0.1);
-            --btn-swing-border: rgba(59, 130, 246, 0.5);
+            --btn-swing-bg: rgba(234, 88, 12, 0.1);
+            --btn-swing-border: rgba(234, 88, 12, 0.5);
             --btn-sell-bg: rgba(168, 85, 247, 0.1);
             --btn-sell-border: rgba(168, 85, 247, 0.5);
         }
         
         /* =========================================
-           LIGHT MODE (Organic Teal & Colors)
+           LIGHT MODE (Organic Teal & Golden Nova)
            ========================================= */
         [data-theme="light"] { 
             --bg-color: #D4DFD8; 
@@ -80,17 +81,18 @@
             --shadow-panel: 0 12px 36px rgba(0, 0, 0, 0.08);
             
             /* Custom Colors */
-            --color-primary: #0F766E; /* Elegant Teal for Headers/Total Value */
-            --color-swing: #C2410C;   /* Dark Orange */
+            --color-primary: #0F766E; /* Elegant Teal for Headers */
+            --color-total-val: #F5A623; /* Golden Nova for Total Value */
+            --color-swing: #C2410C;   /* Deep Dark Orange */
             --color-sell: #7E22CE;    /* Deep Purple */
-            --color-pnl: #15803D;     /* Dark Green */
+            --color-pnl: #15803D;     /* Dark Green for P&L */
             
             --bg-primary-btn: #0F766E; 
             --bg-sell-btn: #7E22CE;
             --tier3-swing-border: transparent;
             --tier3-sell-border: transparent;
 
-            /* BUG FIX: Hardcoded RGBA for perfect transparency */
+            /* Badges */
             --badge-open-bg: rgba(15, 118, 110, 0.15); /* Teal */
             --badge-open-text: #0F766E;
             --badge-opt-bg: rgba(126, 34, 206, 0.15); /* Purple */
@@ -103,6 +105,7 @@
 
         /* --- Dynamic Utility Classes --- */
         .text-brand-main { color: var(--color-primary); transition: color 0.4s ease; }
+        .text-total-val { color: var(--color-total-val); transition: color 0.4s ease; }
         .text-brand-swing { color: var(--color-swing); transition: color 0.4s ease; }
         .text-brand-sell { color: var(--color-sell); transition: color 0.4s ease; }
         .text-brand-pnl { color: var(--color-pnl); transition: color 0.4s ease; }
@@ -159,7 +162,7 @@
             <div class="absolute inset-0 opacity-5 bg-gradient-to-br from-blue-500 to-purple-500 pointer-events-none"></div>
             
             <p class="text-[11px] font-bold uppercase tracking-[0.15em] mb-2 text-[var(--text-muted)] relative z-10">Total Portfolio Value</p>
-            <p class="text-4xl md:text-5xl font-extrabold text-brand-main mb-2 relative z-10" id="uiTotalVal">₹0</p>
+            <p class="text-4xl md:text-5xl font-extrabold text-total-val mb-2 relative z-10" id="uiTotalVal">₹0</p>
             <div class="inline-block px-4 py-1 rounded-full border relative z-10" style="background-color: var(--badge-bg); border-color: var(--badge-border);">
                 <span class="text-sm font-bold" style="color: var(--badge-text);">All-Time ROI: </span>
                 <span class="text-sm font-extrabold text-brand-pnl" id="uiGlobalRoi">0.00%</span>
@@ -355,6 +358,8 @@
         const formatMoney = (v) => v ? formatter.format(v) : '-';
         const wholeFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
         const formatWholeMoney = (v) => v ? wholeFormatter.format(v) : '-';
+        
+        // P&L uses the securely restored text-brand-pnl which guarantees it is green
         const colorize = (v) => v > 0 ? 'text-brand-pnl font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
 
         function showLoader(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; }
