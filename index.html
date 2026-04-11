@@ -171,10 +171,17 @@
             </div>
             <input type="hidden" id="editId">
             <input type="hidden" id="editTradeType">
+            
             <div class="mb-4" id="actionTypeWrapper">
                 <label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Action</label>
                 <select id="editActionType" class="!p-2 border-blue-500/50" onchange="toggleEditFields()"><option value="fullExit">Full Exit / Change Status</option><option value="addMore" id="optAddMore">Add More Shares</option><option value="partialSell" id="optPartial">Partial Sell</option></select>
             </div>
+
+            <div id="wrapperEditMargin" class="hidden mb-4">
+                <label class="text-[10px] uppercase font-bold text-purple-400">Update Margin Blocked (₹)</label>
+                <input type="number" id="editMargin" class="!p-2 border-purple-500/50">
+            </div>
+
             <div id="fieldsFullExit" class="space-y-3 mb-6">
                 <div><label class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Status</label>
                     <select id="editStatus" class="!p-2"><option value="Open">Open</option><option value="Closed">Closed</option><option value="Rolled">Rolled</option></select>
@@ -318,12 +325,10 @@
 
         function renderTable() {
             const f = document.getElementById('searchInput').value.toUpperCase();
-            const statusFilter = document.getElementById('filterStatus').value; // NEW: Get Filter Value
+            const statusFilter = document.getElementById('filterStatus').value;
 
-            // Apply Text Search
             let filtered = allTrades.filter(t => t.stock.includes(f));
             
-            // NEW: Apply Status Filter
             if (statusFilter !== 'All') {
                 filtered = filtered.filter(t => t.status === statusFilter);
             }
@@ -435,10 +440,17 @@
                 document.getElementById('optAddMore').disabled = true;
                 document.getElementById('optPartial').disabled = true;
                 document.getElementById('lblEditExit').innerText = "Premium Paid to Close (₹)";
+                
+                // Show the Margin input field and populate it
+                document.getElementById('wrapperEditMargin').classList.remove('hidden');
+                document.getElementById('editMargin').value = t.margin_blocked || '';
             } else {
                 document.getElementById('optAddMore').disabled = false;
                 document.getElementById('optPartial').disabled = false;
                 document.getElementById('lblEditExit').innerText = "Exit Price (₹)";
+                
+                // Hide the Margin input field for Swing trades
+                document.getElementById('wrapperEditMargin').classList.add('hidden');
             }
 
             document.getElementById('editActionType').value = 'fullExit'; toggleEditFields();
@@ -452,12 +464,20 @@
             const id = document.getElementById('editId').value;
             const type = document.getElementById('editActionType').value;
             const month = document.getElementById('monthSelector').value;
+            const tradeType = document.getElementById('editTradeType').value;
 
             try {
                 if (type === 'fullExit') {
                     const status = document.getElementById('editStatus').value;
                     const exit = document.getElementById('editExit').value;
-                    await db.from('trades').update({ status: status, exit_price: exit ? exit : null }).eq('id', id);
+                    let payload = { status: status, exit_price: exit ? exit : null };
+                    
+                    // NEW: Update margin if it is a Sellio trade
+                    if (tradeType === 'Sellio') {
+                        payload.margin_blocked = document.getElementById('editMargin').value;
+                    }
+
+                    await db.from('trades').update(payload).eq('id', id);
                 } else if (type === 'addMore') {
                     const t = allTrades.find(x => x.id == id);
                     const addedQty = Number(document.getElementById('editActionQty').value);
