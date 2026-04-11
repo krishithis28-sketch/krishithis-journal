@@ -34,15 +34,15 @@
             --shadow-panel: none;
             
             /* Brand Colors (Dark Mode) */
-            --color-primary: #3b82f6; /* Classic Blue for Headers/Accents */
+            --color-primary: #3b82f6; /* Classic Blue */
             --color-total-val: #3b82f6; /* Classic Blue for Total Value */
-            --color-swing: #ea580c;   /* Dark Orange */
+            --color-swing: #3b82f6;   /* Classic Blue for Swingio */
             --color-sell: #a855f7;    /* Purple */
             --color-pnl: #10b981;     /* Emerald Green for P&L */
             
             --bg-primary-btn: #2563eb; 
             --bg-sell-btn: #9333ea;
-            --tier3-swing-border: rgba(234, 88, 12, 0.2);
+            --tier3-swing-border: rgba(59, 130, 246, 0.2);
             --tier3-sell-border: rgba(168, 85, 247, 0.3);
 
             /* Badges */
@@ -50,14 +50,14 @@
             --badge-open-text: #3b82f6;
             --badge-opt-bg: rgba(168, 85, 247, 0.2);
             --badge-opt-text: #c084fc;
-            --btn-swing-bg: rgba(234, 88, 12, 0.1);
-            --btn-swing-border: rgba(234, 88, 12, 0.5);
+            --btn-swing-bg: rgba(59, 130, 246, 0.1);
+            --btn-swing-border: rgba(59, 130, 246, 0.5);
             --btn-sell-bg: rgba(168, 85, 247, 0.1);
             --btn-sell-border: rgba(168, 85, 247, 0.5);
         }
         
         /* =========================================
-           LIGHT MODE (Organic Teal & Golden Nova)
+           LIGHT MODE (Organic Teal & Accent Colors)
            ========================================= */
         [data-theme="light"] { 
             --bg-color: #D4DFD8; 
@@ -81,9 +81,9 @@
             --shadow-panel: 0 12px 36px rgba(0, 0, 0, 0.08);
             
             /* Custom Colors */
-            --color-primary: #0F766E; /* Elegant Teal for Headers */
-            --color-total-val: #F5A623; /* Golden Nova for Total Value */
-            --color-swing: #C2410C;   /* Deep Dark Orange */
+            --color-primary: #0F766E; /* Elegant Teal */
+            --color-total-val: #0F766E; /* Elegant Teal for Total Value */
+            --color-swing: #0D9488;   /* Vibrant Teal for Swingio */
             --color-sell: #7E22CE;    /* Deep Purple */
             --color-pnl: #15803D;     /* Dark Green for P&L */
             
@@ -97,8 +97,8 @@
             --badge-open-text: #0F766E;
             --badge-opt-bg: rgba(126, 34, 206, 0.15); /* Purple */
             --badge-opt-text: #7E22CE;
-            --btn-swing-bg: rgba(194, 65, 12, 0.08);
-            --btn-swing-border: rgba(194, 65, 12, 0.4);
+            --btn-swing-bg: rgba(13, 148, 136, 0.08); /* Teal BG */
+            --btn-swing-border: rgba(13, 148, 136, 0.4);
             --btn-sell-bg: rgba(126, 34, 206, 0.08);
             --btn-sell-border: rgba(126, 34, 206, 0.4);
         }
@@ -161,6 +161,10 @@
         <div class="glass-panel p-8 text-center relative overflow-hidden">
             <div class="absolute inset-0 opacity-5 bg-gradient-to-br from-blue-500 to-purple-500 pointer-events-none"></div>
             
+            <div class="absolute top-5 right-6 text-xs font-semibold tracking-wide text-[var(--text-muted)] z-10">
+                Holdings: <span id="uiHoldingsCount" class="font-bold">0</span>
+            </div>
+
             <p class="text-[11px] font-bold uppercase tracking-[0.15em] mb-2 text-[var(--text-muted)] relative z-10">Total Portfolio Value</p>
             <p class="text-4xl md:text-5xl font-extrabold text-total-val mb-2 relative z-10" id="uiTotalVal">₹0</p>
             <div class="inline-block px-4 py-1 rounded-full border relative z-10" style="background-color: var(--badge-bg); border-color: var(--badge-border);">
@@ -233,7 +237,7 @@
             </div>
             <div class="glass-panel p-5">
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Realized P&L</p>
-                <p class="text-2xl md:text-3xl font-bold" id="uiPnl">₹0</p>
+                <p class="text-2xl md:text-3xl font-bold text-brand-pnl" id="uiPnl">₹0</p>
             </div>
             <div class="glass-panel p-5 relative overflow-hidden">
                 <div class="absolute inset-0 opacity-10 bg-[var(--color-primary)] pointer-events-none"></div>
@@ -339,7 +343,7 @@
             </div>
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="btn-shape flex-1 py-3 bg-slate-500/20 font-bold">Cancel</button>
-                <button onclick="saveTradeUpdate()" class="btn-shape flex-1 py-3 bg-emerald-600 text-white font-bold">Update</button>
+                <button onclick="saveTradeUpdate()" class="btn-shape flex-1 py-3 bg-brand-pnl text-white font-bold">Update</button>
             </div>
         </div>
     </div>
@@ -359,7 +363,7 @@
         const wholeFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
         const formatWholeMoney = (v) => v ? wholeFormatter.format(v) : '-';
         
-        // P&L uses the securely restored text-brand-pnl which guarantees it is green
+        // P&L logic securely restored to use text-brand-pnl
         const colorize = (v) => v > 0 ? 'text-brand-pnl font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
 
         function showLoader(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; }
@@ -435,6 +439,9 @@
         function renderUI(mSip, gSip, gPnl, openStockInvested, openMarginBlocked, gPnlSwing, gPnlSellio) {
             const openTrades = allTrades.filter(t => t.status === 'Open');
             
+            // NEW: Update Holdings Count dynamically
+            document.getElementById('uiHoldingsCount').innerText = openTrades.length;
+
             let monthlyPnl = 0;
             allTrades.filter(t => t.status === 'Closed').forEach(t => {
                 if (t.trade_type === 'Sellio') monthlyPnl += (Number(t.entry_price) - Number(t.exit_price)) * Number(t.qty);
