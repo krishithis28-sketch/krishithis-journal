@@ -34,8 +34,7 @@
             --shadow-panel: none;
             
             /* Brand Colors (Dark Mode) */
-            --color-primary: #3b82f6; /* Classic Blue for Headers/Accents */
-            --color-total-val: #3b82f6; /* Classic Blue for Total Value */
+            --color-primary: #3b82f6; /* Classic Blue for Headers/Total Value */
             --color-swing: #3b82f6;   /* Classic Blue for Swingio */
             --color-sell: #a855f7;    /* Purple */
             --color-pnl: #10b981;     /* Emerald Green for P&L */
@@ -57,10 +56,9 @@
         }
         
         /* =========================================
-           LIGHT MODE (Organic Teal & Golden Nova)
+           LIGHT MODE (Organic Teal & Accent Colors)
            ========================================= */
         [data-theme="light"] { 
-            /* Noticeably darker, richer earthy sage background */
             --bg-color: #AAB8B0; 
             --body-bg: linear-gradient(135deg, #AAB8B0 0%, #BCC8C1 100%);
             --text-main: #1E293B; 
@@ -79,11 +77,10 @@
             /* Organic Shapes & Shadows */
             --radius-panel: 28px; 
             --radius-btn: 9999px; 
-            --shadow-panel: 0 12px 36px rgba(0, 0, 0, 0.12); /* Slightly stronger shadow for the darker bg */
+            --shadow-panel: 0 12px 36px rgba(0, 0, 0, 0.12);
             
             /* Custom Colors */
-            --color-primary: #0F766E; /* Elegant Teal for Headers */
-            --color-total-val: #F5A623; /* Golden Nova for Total Value */
+            --color-primary: #0F766E; /* Elegant Teal for Headers & Total Value */
             --color-swing: #0D9488;   /* Vibrant Teal for Swingio */
             --color-sell: #7E22CE;    /* Deep Purple */
             --color-pnl: #15803D;     /* Dark Green for P&L */
@@ -106,7 +103,6 @@
 
         /* --- Dynamic Utility Classes --- */
         .text-brand-main { color: var(--color-primary); transition: color 0.4s ease; }
-        .text-total-val { color: var(--color-total-val); transition: color 0.4s ease; }
         .text-brand-swing { color: var(--color-swing); transition: color 0.4s ease; }
         .text-brand-sell { color: var(--color-sell); transition: color 0.4s ease; }
         .text-brand-pnl { color: var(--color-pnl); transition: color 0.4s ease; }
@@ -167,7 +163,7 @@
             </div>
 
             <p class="text-[11px] font-bold uppercase tracking-[0.15em] mb-2 text-[var(--text-muted)] relative z-10">Total Portfolio Value</p>
-            <p class="text-4xl md:text-5xl font-extrabold text-total-val mb-2 relative z-10" id="uiTotalVal">₹0</p>
+            <p class="text-4xl md:text-5xl font-extrabold text-brand-main mb-2 relative z-10" id="uiTotalVal">₹0</p>
             <div class="inline-block px-4 py-1 rounded-full border relative z-10" style="background-color: var(--badge-bg); border-color: var(--badge-border);">
                 <span class="text-sm font-bold" style="color: var(--badge-text);">All-Time ROI: </span>
                 <span class="text-sm font-extrabold text-brand-pnl" id="uiGlobalRoi">0.00%</span>
