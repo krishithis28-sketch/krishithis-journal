@@ -53,6 +53,11 @@
             --btn-swing-border: rgba(59, 130, 246, 0.5);
             --btn-sell-bg: rgba(168, 85, 247, 0.1);
             --btn-sell-border: rgba(168, 85, 247, 0.5);
+            
+            /* Tier 1 Background Gradient */
+            --t1-grad-start: #3b82f6;
+            --t1-grad-end: #a855f7;
+            --t1-grad-opacity: 0.08;
         }
         
         /* =========================================
@@ -99,6 +104,11 @@
             --btn-swing-border: rgba(13, 148, 136, 0.4);
             --btn-sell-bg: rgba(126, 34, 206, 0.08);
             --btn-sell-border: rgba(126, 34, 206, 0.4);
+            
+            /* Tier 1 Background Gradient */
+            --t1-grad-start: #0F766E; /* Teal */
+            --t1-grad-end: #F5A623;   /* Golden Nova */
+            --t1-grad-opacity: 0.06;
         }
 
         /* --- Dynamic Utility Classes --- */
@@ -156,7 +166,7 @@
 
     <div id="viewMaster" class="w-full max-w-7xl hidden space-y-4">
         <div class="glass-panel p-8 text-center relative overflow-hidden">
-            <div class="absolute inset-0 opacity-5 bg-gradient-to-br from-blue-500 to-purple-500 pointer-events-none"></div>
+            <div class="absolute inset-0 pointer-events-none transition-all duration-400" style="background: linear-gradient(135deg, var(--t1-grad-start), var(--t1-grad-end)); opacity: var(--t1-grad-opacity);"></div>
             
             <div class="absolute top-5 right-6 text-xs font-semibold tracking-wide text-[var(--text-muted)] z-10">
                 Holdings: <span id="uiHoldingsCount" class="font-bold">0</span>
