@@ -34,7 +34,7 @@
             --shadow-panel: none;
             
             /* Brand Colors (Dark Mode) */
-            --color-primary: #3b82f6; /* Classic Blue */
+            --color-primary: #3b82f6; /* Classic Blue for Headers/Accents */
             --color-total-val: #3b82f6; /* Classic Blue for Total Value */
             --color-swing: #3b82f6;   /* Classic Blue for Swingio */
             --color-sell: #a855f7;    /* Purple */
@@ -57,11 +57,12 @@
         }
         
         /* =========================================
-           LIGHT MODE (Organic Teal & Accent Colors)
+           LIGHT MODE (Organic Teal & Golden Nova)
            ========================================= */
         [data-theme="light"] { 
-            --bg-color: #D4DFD8; 
-            --body-bg: linear-gradient(135deg, #D4DFD8 0%, #E3EBE5 100%);
+            /* Noticeably darker, richer earthy sage background */
+            --bg-color: #AAB8B0; 
+            --body-bg: linear-gradient(135deg, #AAB8B0 0%, #BCC8C1 100%);
             --text-main: #1E293B; 
             --text-muted: #64748B; 
             --panel-bg: #FFFFFF; 
@@ -78,11 +79,11 @@
             /* Organic Shapes & Shadows */
             --radius-panel: 28px; 
             --radius-btn: 9999px; 
-            --shadow-panel: 0 12px 36px rgba(0, 0, 0, 0.08);
+            --shadow-panel: 0 12px 36px rgba(0, 0, 0, 0.12); /* Slightly stronger shadow for the darker bg */
             
             /* Custom Colors */
-            --color-primary: #0F766E; /* Elegant Teal */
-            --color-total-val: #0F766E; /* Elegant Teal for Total Value */
+            --color-primary: #0F766E; /* Elegant Teal for Headers */
+            --color-total-val: #F5A623; /* Golden Nova for Total Value */
             --color-swing: #0D9488;   /* Vibrant Teal for Swingio */
             --color-sell: #7E22CE;    /* Deep Purple */
             --color-pnl: #15803D;     /* Dark Green for P&L */
@@ -343,7 +344,7 @@
             </div>
             <div class="flex gap-3">
                 <button onclick="closeModals()" class="btn-shape flex-1 py-3 bg-slate-500/20 font-bold">Cancel</button>
-                <button onclick="saveTradeUpdate()" class="btn-shape flex-1 py-3 bg-brand-pnl text-white font-bold">Update</button>
+                <button onclick="saveTradeUpdate()" class="btn-shape flex-1 py-3 bg-emerald-600 text-white font-bold">Update</button>
             </div>
         </div>
     </div>
@@ -363,7 +364,6 @@
         const wholeFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
         const formatWholeMoney = (v) => v ? wholeFormatter.format(v) : '-';
         
-        // P&L logic securely restored to use text-brand-pnl
         const colorize = (v) => v > 0 ? 'text-brand-pnl font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
 
         function showLoader(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; }
@@ -439,7 +439,6 @@
         function renderUI(mSip, gSip, gPnl, openStockInvested, openMarginBlocked, gPnlSwing, gPnlSellio) {
             const openTrades = allTrades.filter(t => t.status === 'Open');
             
-            // NEW: Update Holdings Count dynamically
             document.getElementById('uiHoldingsCount').innerText = openTrades.length;
 
             let monthlyPnl = 0;
