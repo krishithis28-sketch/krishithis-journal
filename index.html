@@ -222,11 +222,12 @@
     <div id="viewMonthly" class="w-full max-w-7xl">
         <div class="flex flex-col md:flex-row justify-between gap-4 mb-4">
             <div class="relative w-full md:w-64">
-                <input type="hidden" id="monthSelector" value="Mar 2026">
-                <button id="customMonthBtn" class="btn-shape w-full bg-[var(--input-bg)] border border-[var(--border-color)] p-3 text-left font-bold text-lg flex justify-between items-center transition-colors shadow-sm" onclick="toggleDropdown()">
-                    <span id="selectedMonthText">Mar 2026</span>
-                    <span class="text-[var(--text-muted)] text-sm">▼</span>
-                </button>
+                <!-- UPDATED -->
+            <input type="hidden" id="monthSelector" value="Aug 2026">
+            <button id="customMonthBtn" class="btn-shape w-full bg-[var(--input-bg)] border border-[var(--border-color)] p-3 text-left font-bold text-lg flex justify-between items-center transition-colors shadow-sm" onclick="toggleDropdown()">
+                <span id="selectedMonthText">Aug 2026</span>
+                <span class="text-[var(--text-muted)] text-sm">▼</span>
+            </button>
                 <div id="customMonthMenu" class="absolute z-50 w-full mt-2 bg-[var(--bg-color)] border border-[var(--border-color)] rounded-xl shadow-2xl hidden max-h-96 overflow-y-auto hide-scroll"></div>
             </div>
             
@@ -382,27 +383,56 @@
         function switchTab(t) { document.getElementById('tabMonthly').classList.remove('active'); document.getElementById('tabMaster').classList.remove('active'); document.getElementById('viewMonthly').classList.add('hidden'); document.getElementById('viewMaster').classList.add('hidden'); if(t === 'monthly') { document.getElementById('tabMonthly').classList.add('active'); document.getElementById('viewMonthly').classList.remove('hidden'); } else { document.getElementById('tabMaster').classList.add('active'); document.getElementById('viewMaster').classList.remove('hidden'); } }
         function setSort(c) { if(sortCol === c) sortAsc = !sortAsc; else { sortCol = c; sortAsc = true; } renderTable(); }
 
-        function populateMonths() {
-            const menu = document.getElementById('customMonthMenu');
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const startYear = 2026; const startMonthIndex = 2; const today = new Date(); const currentRealYear = today.getFullYear();
-            const totalMonths = ((today.getFullYear() - startYear) * 12) + (today.getMonth() - startMonthIndex) + 2;
-            const yearsData = {}; generatedMonths = []; 
-            
-            for (let i = 0; i < totalMonths; i++) { 
-                let d = new Date(startYear, startMonthIndex + i); let y = d.getFullYear(); let m = `${monthNames[d.getMonth()]} ${y}`;
-                if (!yearsData[y]) yearsData[y] = []; yearsData[y].push(m); generatedMonths.push(m);
-            }
-            menu.innerHTML = ''; 
-            for (const [year, months] of Object.entries(yearsData)) {
-                const yearHeader = document.createElement('div'); const isOpen = (parseInt(year) === currentRealYear);
-                yearHeader.innerHTML = `<button onclick="toggleYear('${year}')" class="w-full text-left px-4 py-2 bg-[var(--th-bg)] font-bold text-[var(--text-muted)] text-sm flex justify-between items-center border-b border-[var(--border-color)]"><span>${year}</span><span id="icon-${year}">${isOpen ? '▼' : '▶'}</span></button><div id="group-${year}" class="${isOpen ? 'block' : 'hidden'}">${months.map(m => `<button onclick="selectMonth('${m}')" class="w-full text-left px-6 py-2 hover:bg-[var(--row-hover)] border-b border-[var(--border-color)] transition-colors text-[var(--text-main)]">${m}</button>`).join('')}</div>`;
-                menu.appendChild(yearHeader);
-            }
-            let currentMonthString = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
-            if (today.getFullYear() === 2026 && today.getMonth() < 2) currentMonthString = "Mar 2026";
-            document.getElementById('selectedMonthText').innerText = currentMonthString; document.getElementById('monthSelector').value = currentMonthString;
-        }
+       function populateMonths() {
+    const menu = document.getElementById('customMonthMenu');
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    // Starting fresh from August 2026 (Month index 7 = August)
+    const startYear = 2026; 
+    const startMonthIndex = 7; 
+    const today = new Date(); 
+    const currentRealYear = today.getFullYear();
+    
+    // Generates from start date up to 12 months into the future dynamically
+    const pastMonthsCount = ((today.getFullYear() - startYear) * 12) + (today.getMonth() - startMonthIndex);
+    const forwardBuffer = 12; // Always keep 12 future months available
+    const totalMonths = Math.max(0, pastMonthsCount) + forwardBuffer;
+    
+    const yearsData = {}; 
+    generatedMonths = []; 
+    
+    for (let i = 0; i <= totalMonths; i++) { 
+        let d = new Date(startYear, startMonthIndex + i, 1); 
+        let y = d.getFullYear(); 
+        let m = `${monthNames[d.getMonth()]} ${y}`;
+        
+        if (!yearsData[y]) yearsData[y] = []; 
+        yearsData[y].push(m); 
+        generatedMonths.push(m);
+    }
+    
+    menu.innerHTML = ''; 
+    for (const [year, months] of Object.entries(yearsData)) {
+        const yearHeader = document.createElement('div'); 
+        const isOpen = (parseInt(year) === currentRealYear);
+        
+        yearHeader.innerHTML = `
+            <button onclick="toggleYear('${year}')" class="w-full text-left px-4 py-2 bg-[var(--th-bg)] font-bold text-[var(--text-muted)] text-sm flex justify-between items-center border-b border-[var(--border-color)]">
+                <span>${year}</span>
+                <span id="icon-${year}">${isOpen ? '▼' : '▶'}</span>
+            </button>
+            <div id="group-${year}" class="${isOpen ? 'block' : 'hidden'}">
+                ${months.map(m => `<button onclick="selectMonth('${m}')" class="w-full text-left px-6 py-2 hover:bg-[var(--row-hover)] border-b border-[var(--border-color)] transition-colors text-[var(--text-main)]">${m}</button>`).join('')}
+            </div>
+        `;
+        menu.appendChild(yearHeader);
+    }
+    
+    // Automatically select the active real-world month
+    let currentMonthString = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+    document.getElementById('selectedMonthText').innerText = currentMonthString; 
+    document.getElementById('monthSelector').value = currentMonthString;
+}
 
         function toggleDropdown() { document.getElementById('customMonthMenu').classList.toggle('hidden'); }
         function toggleYear(year) { const group = document.getElementById(`group-${year}`); const icon = document.getElementById(`icon-${year}`); if (group.classList.contains('hidden')) { group.classList.remove('hidden'); icon.innerText = '▼'; } else { group.classList.add('hidden'); icon.innerText = '▶'; } }
