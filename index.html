@@ -53,7 +53,7 @@
             --ithio-grad-opacity: 0.18;
             --ithio-glow: rgba(168, 85, 247, 0.22);
             --ithio-chip-bg: rgba(139, 92, 246, 0.14);
-            --color-ithio-net: #2563eb;   /* deep blue Net */
+            --color-ithio-net: #1d4ed8;   /* deeper blue Net (dark mode) */
 
             /* Badges */
             --badge-open-bg: rgba(59, 130, 246, 0.2); 
@@ -142,6 +142,8 @@
         .text-brand-pnl { color: var(--color-pnl); transition: color 0.4s ease; }
         .text-brand-ithio { color: var(--color-ithio); transition: color 0.4s ease; }
         .text-brand-ithio-net { color: var(--color-ithio-net); transition: color 0.4s ease; }
+        .ithio-net-number { font-weight: 900; }
+        [data-theme="light"] .ithio-net-number { font-weight: 800; }
         .ithio-tab { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--text-muted); transition: all .2s ease; }
         .ithio-tab.active { background: var(--color-ithio); color: #111827; }
         .ithio-tab:hover { color: var(--text-main); }
@@ -280,7 +282,7 @@
                     </div>
                     <div class="text-right min-w-0">
                         <p class="text-[10px] font-bold uppercase tracking-wider text-brand-ithio-net mb-1" id="uiIthioNetLabel">Net</p>
-                        <p class="text-lg sm:text-3xl md:text-4xl font-extrabold text-brand-ithio-net" id="uiIthioNet">₹0</p>
+                        <p class="text-lg sm:text-3xl md:text-4xl ithio-net-number text-brand-ithio-net" id="uiIthioNet">₹0</p>
                     </div>
                 </div>
                 <div class="mt-auto pt-1 border-t border-[var(--border-color)] flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs">
@@ -489,7 +491,7 @@
 
             const netEl = document.getElementById('uiIthioNet');
             netEl.innerText = fmtSignedWhole(net);
-            netEl.className = 'text-lg sm:text-3xl md:text-4xl font-extrabold text-brand-ithio-net';
+            netEl.className = 'text-lg sm:text-3xl md:text-4xl ithio-net-number text-brand-ithio-net';
             netEl.title = `Gross ${fmtSignedWhole(s.gross)} · est. charges ${wholeFormatter.format(s.charges)} · net ${fmtSignedWhole(net)}`;
 
             const retEl = document.getElementById('uiIthioReturn');
