@@ -53,6 +53,7 @@
             --ithio-grad-opacity: 0.18;
             --ithio-glow: rgba(168, 85, 247, 0.22);
             --ithio-chip-bg: rgba(139, 92, 246, 0.14);
+            --color-ithio-net: #2563eb;   /* deep blue Net */
 
             /* Badges */
             --badge-open-bg: rgba(59, 130, 246, 0.2); 
@@ -115,6 +116,7 @@
             --ithio-grad-opacity: 0.14;
             --ithio-glow: rgba(109, 40, 217, 0.12);
             --ithio-chip-bg: rgba(109, 40, 217, 0.12);
+            --color-ithio-net: #1e40af;   /* deep blue Net */
 
             /* Badges */
             --badge-open-bg: rgba(15, 118, 110, 0.15); 
@@ -139,6 +141,7 @@
         .text-brand-sell { color: var(--color-sell); transition: color 0.4s ease; }
         .text-brand-pnl { color: var(--color-pnl); transition: color 0.4s ease; }
         .text-brand-ithio { color: var(--color-ithio); transition: color 0.4s ease; }
+        .text-brand-ithio-net { color: var(--color-ithio-net); transition: color 0.4s ease; }
         .ithio-tab { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--text-muted); transition: all .2s ease; }
         .ithio-tab.active { background: var(--color-ithio); color: #111827; }
         .ithio-tab:hover { color: var(--text-main); }
@@ -271,12 +274,12 @@
                     </div>
                     <div class="text-center min-w-0">
                         <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Latest</p>
-                        <p class="text-base sm:text-2xl font-bold text-[var(--text-main)]" id="uiIthioLatest">₹0</p>
+                        <p class="text-base sm:text-2xl font-bold text-brand-pnl" id="uiIthioLatest">₹0</p>
                     </div>
                     <div class="text-right min-w-0">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1" id="uiIthioNetLabel">Net</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-brand-ithio-net mb-1" id="uiIthioNetLabel">Net</p>
                         <div class="flex flex-col items-end sm:flex-row sm:items-end sm:justify-end gap-1 sm:gap-2">
-                            <p class="text-xl sm:text-4xl md:text-5xl font-extrabold text-brand-ithio" id="uiIthioNet">₹0</p>
+                            <p class="text-xl sm:text-4xl md:text-5xl font-extrabold text-brand-ithio-net" id="uiIthioNet">₹0</p>
                             <span class="pill-pnl zero" id="uiIthioReturn">0.00%</span>
                         </div>
                     </div>
@@ -484,7 +487,7 @@
 
             const netEl = document.getElementById('uiIthioNet');
             netEl.innerText = fmtSignedWhole(net);
-            netEl.className = `text-4xl md:text-5xl font-extrabold ${net > 0 ? 'text-brand-pnl' : net < 0 ? 'text-rose-500' : 'text-brand-ithio'}`;
+            netEl.className = 'text-xl sm:text-4xl md:text-5xl font-extrabold text-brand-ithio-net';
             netEl.title = `Gross ${fmtSignedWhole(s.gross)} · est. charges ${wholeFormatter.format(s.charges)} · net ${fmtSignedWhole(net)}`;
 
             const retEl = document.getElementById('uiIthioReturn');

@@ -36,7 +36,8 @@ vm.runInThisContext(
 
 __ithio.renderIthio();
 assert.ok(el('uiIthioNet').innerText.includes('4,794'), el('uiIthioNet').innerText);
-assert.ok(el('uiIthioNet').className.includes('text-brand-pnl'));
+assert.ok(el('uiIthioNet').className.includes('text-brand-ithio-net'));
+assert.ok(el('uiIthioReturn').className.includes('pill-pnl'));
 assert.strictEqual(el('uiIthioReturn').innerText, '+9.59%');
 assert.strictEqual(el('uiIthioDate').innerText, '2026-10-19');
 assert.strictEqual(el('uiIthioPeriodChip').innerText, '1 day');
