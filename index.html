@@ -37,28 +37,37 @@
             --color-primary: #3b82f6; /* Classic Blue */
             --color-total-val: #3b82f6; /* Classic Blue */
             --color-swing: #3b82f6;   /* Classic Blue */
-            --color-sell: #a855f7;    /* Purple */
+            --color-sell: #f59e0b;    /* Gold / amber (Sellio) */
             --color-pnl: #10b981;     /* Emerald Green */
             
             --bg-primary-btn: #2563eb; 
-            --bg-sell-btn: #9333ea;
+            --bg-sell-btn: #d97706;
             --tier3-swing-border: rgba(59, 130, 246, 0.2);
-            --tier3-sell-border: rgba(168, 85, 247, 0.3);
+            --tier3-sell-border: rgba(245, 158, 11, 0.4);
+            /* Ithio — separate automated options book (violet) */
+            --color-ithio: #8b5cf6;
+            --tier3-ithio-border: rgba(139, 92, 246, 0.45);
+            --ithio-grad-start: #8b5cf6;
+            --ithio-grad-mid: #a855f7;
+            --ithio-grad-end: #6d28d9;
+            --ithio-grad-opacity: 0.18;
+            --ithio-glow: rgba(168, 85, 247, 0.22);
+            --ithio-chip-bg: rgba(139, 92, 246, 0.14);
 
             /* Badges */
             --badge-open-bg: rgba(59, 130, 246, 0.2); 
             --badge-open-text: #3b82f6;
-            --badge-opt-bg: rgba(168, 85, 247, 0.2);
-            --badge-opt-text: #c084fc;
+            --badge-opt-bg: rgba(245, 158, 11, 0.2);
+            --badge-opt-text: #fbbf24;
             --btn-swing-bg: rgba(59, 130, 246, 0.1);
             --btn-swing-border: rgba(59, 130, 246, 0.5);
-            --btn-sell-bg: rgba(168, 85, 247, 0.1);
-            --btn-sell-border: rgba(168, 85, 247, 0.5);
+            --btn-sell-bg: rgba(245, 158, 11, 0.1);
+            --btn-sell-border: rgba(245, 158, 11, 0.5);
             
             /* Tier 1 Background Gradient */
             --t1-grad-start: #3b82f6;
-            --t1-grad-end: #a855f7;
-            --t1-grad-opacity: 0.08;
+            --t1-grad-end: #f59e0b;
+            --t1-grad-opacity: 0.14;
         }
         
         /* =========================================
@@ -90,27 +99,36 @@
             --color-primary: #0F766E; /* Teal */
             --color-total-val: #0F766E; /* Teal */
             --color-swing: #0D9488;   /* Vibrant Teal */
-            --color-sell: #7E22CE;    /* Deep Purple */
+            --color-sell: #b45309;    /* Deep amber (Sellio) */
             --color-pnl: #15803D;     /* Dark Green */
             
             --bg-primary-btn: #0F766E; 
-            --bg-sell-btn: #7E22CE;
+            --bg-sell-btn: #b45309;
             --tier3-swing-border: transparent;
-            --tier3-sell-border: transparent;
+            --tier3-sell-border: rgba(180, 83, 9, 0.35);
+            /* Ithio — separate automated options book (violet, light mode) */
+            --color-ithio: #6d28d9;
+            --tier3-ithio-border: rgba(109, 40, 217, 0.35);
+            --ithio-grad-start: #8b5cf6;
+            --ithio-grad-mid: #a855f7;
+            --ithio-grad-end: #6d28d9;
+            --ithio-grad-opacity: 0.14;
+            --ithio-glow: rgba(109, 40, 217, 0.12);
+            --ithio-chip-bg: rgba(109, 40, 217, 0.12);
 
             /* Badges */
             --badge-open-bg: rgba(15, 118, 110, 0.15); 
             --badge-open-text: #0F766E;
-            --badge-opt-bg: rgba(126, 34, 206, 0.15); 
-            --badge-opt-text: #7E22CE;
+            --badge-opt-bg: rgba(180, 83, 9, 0.12); 
+            --badge-opt-text: #b45309;
             --btn-swing-bg: rgba(13, 148, 136, 0.08); 
             --btn-swing-border: rgba(13, 148, 136, 0.4);
-            --btn-sell-bg: rgba(126, 34, 206, 0.08);
-            --btn-sell-border: rgba(126, 34, 206, 0.4);
+            --btn-sell-bg: rgba(180, 83, 9, 0.08);
+            --btn-sell-border: rgba(180, 83, 9, 0.4);
             
             /* Tier 1 Background Gradient */
             --t1-grad-start: #0F766E; 
-            --t1-grad-end: #F5A623;   
+            --t1-grad-end: #f59e0b;   
             --t1-grad-opacity: 0.35;
         }
 
@@ -120,12 +138,21 @@
         .text-brand-swing { color: var(--color-swing); transition: color 0.4s ease; }
         .text-brand-sell { color: var(--color-sell); transition: color 0.4s ease; }
         .text-brand-pnl { color: var(--color-pnl); transition: color 0.4s ease; }
+        .text-brand-ithio { color: var(--color-ithio); transition: color 0.4s ease; }
+        .ithio-tab { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--text-muted); transition: all .2s ease; }
+        .ithio-tab.active { background: var(--color-ithio); color: #111827; }
+        .ithio-tab:hover { color: var(--text-main); }
+        .ithio-tab.active:hover { color: #111827; }
+        .pill-pnl { display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 10px; font-size: 14px; font-weight: 700; border: 1px solid; }
+        .pill-pnl.pos { color: var(--color-pnl); background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.35); }
+        .pill-pnl.neg { color: #f43f5e; background: rgba(244,63,94,0.12); border-color: rgba(244,63,94,0.35); }
+        .pill-pnl.zero { color: var(--text-muted); background: var(--input-bg); border-color: var(--border-color); }
         
         .bg-brand-main { background-color: var(--bg-primary-btn); color: white; transition: background-color 0.4s ease; }
         .bg-brand-sell { background-color: var(--bg-sell-btn); color: white; transition: background-color 0.4s ease; }
         .border-brand-main { border-color: var(--color-primary); }
 
-        body { background: var(--body-bg); color: var(--text-main); font-family: -apple-system, sans-serif; transition: all 0.4s ease; -webkit-tap-highlight-color: transparent; min-height: 100vh;}
+        body { background: var(--body-bg); color: var(--text-main); font-family: -apple-system, sans-serif; font-variant-numeric: tabular-nums; transition: all 0.4s ease; -webkit-tap-highlight-color: transparent; min-height: 100vh;}
         
         .glass-panel { background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); transition: all 0.4s ease;}
         .btn-shape { border-radius: var(--radius-btn); transition: all 0.4s ease; }
@@ -168,12 +195,14 @@
         <button id="tabMaster" onclick="switchTab('master')" class="tab-btn flex-1 btn-shape">Portfolio Summary</button>
     </div>
 
-    <div id="viewMaster" class="w-full max-w-7xl hidden space-y-4">
-        <div class="glass-panel p-8 text-center relative overflow-hidden">
+    <div id="viewMaster" class="w-full max-w-7xl hidden space-y-4" style="background-image: radial-gradient(ellipse at 50% -20%, rgba(139,92,246,0.10), transparent 55%); background-repeat: no-repeat; background-size: 100% 500px;">
+        <div id="portfolioHero" class="glass-panel p-8 text-center relative overflow-hidden">
             <div class="absolute inset-0 pointer-events-none transition-all duration-400" style="background: linear-gradient(135deg, var(--t1-grad-start), var(--t1-grad-end)); opacity: var(--t1-grad-opacity);"></div>
             
-            <div class="absolute top-5 right-6 text-xs font-semibold tracking-wide text-[var(--text-muted)] z-10">
-                Holdings: <span id="uiHoldingsCount" class="font-bold">0</span>
+            <div class="absolute top-4 right-4 z-10">
+                <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold text-[var(--text-muted)]" style="background: var(--badge-bg); border: 1px solid var(--badge-border);">
+                    Holdings <span id="uiHoldingsCount" class="text-[var(--text-main)]">0</span>
+                </span>
             </div>
 
             <p class="text-[11px] font-bold uppercase tracking-[0.15em] mb-2 text-[var(--text-muted)] relative z-10">Total Portfolio Value</p>
@@ -181,18 +210,19 @@
             <div class="inline-block px-4 py-1 rounded-full border relative z-10" style="background-color: var(--badge-bg); border-color: var(--badge-border);">
                 <span class="text-sm font-bold" style="color: var(--badge-text);">All-Time ROI: </span>
                 <span class="text-sm font-extrabold text-brand-pnl" id="uiGlobalRoi">0.00%</span>
+                <span class="text-sm font-extrabold ml-1 text-[var(--text-muted)]" id="uiRoiArrow">&#8594;</span>
             </div>
         </div>
         
         <div class="grid grid-cols-2 gap-4">
-            <div class="glass-panel p-6 text-center">
+            <div class="glass-panel p-6 text-center" style="border-top: 2px solid var(--color-primary); background-image: linear-gradient(135deg, rgba(59,130,246,0.08), transparent 65%);">
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative SIP Added</p>
                 <p class="text-2xl font-bold">
                     <span id="uiGlobalSip">₹0</span>
                     <span class="emoji-dark ml-1 opacity-80">🏦</span><span class="emoji-light ml-1 opacity-80">🧺</span>
                 </p>
             </div>
-            <div class="glass-panel p-6 text-center">
+            <div class="glass-panel p-6 text-center" style="border-top: 2px solid var(--color-pnl); background-image: linear-gradient(135deg, rgba(16,185,129,0.08), transparent 65%);">
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">Cumulative Realized P&L</p>
                 <p class="text-2xl font-bold text-brand-pnl">
                     <span id="uiGlobalPnl">₹0</span>
@@ -202,19 +232,63 @@
         </div>
         
         <div class="grid grid-cols-2 gap-4">
-            <div class="glass-panel p-6 text-center border-t-2" style="border-top-color: var(--tier3-swing-border);">
+            <div class="glass-panel p-6 text-center border-t-2" style="border-top-color: var(--tier3-swing-border); background-image: linear-gradient(135deg, rgba(59,130,246,0.07), transparent 65%);">
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">SWINGIO</p>
                 <p class="text-2xl font-bold text-brand-swing">
                     <span id="uiSwingioPnl">₹0</span> 
                     <span class="emoji-dark ml-1 opacity-80">📈</span><span class="emoji-light ml-1 opacity-80">🌱</span>
                 </p>
             </div>
-            <div class="glass-panel p-6 text-center border-t-2" style="border-top-color: var(--tier3-sell-border);">
+            <div class="glass-panel p-6 text-center border-t-2" style="border-top-color: var(--tier3-sell-border); background-image: linear-gradient(135deg, rgba(245,158,11,0.07), transparent 65%);">
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 text-[var(--text-muted)]">SELLIO</p>
                 <p class="text-2xl font-bold text-brand-sell">
                     <span id="uiSellioPnl">₹0</span> 
                     <span class="emoji-dark ml-1 opacity-80">⏳</span><span class="emoji-light ml-1 opacity-80">🪴</span>
                 </p>
+            </div>
+        </div>
+
+        <!-- ITHIO — separate automated options book. Read-only; fed by the bot at EOD. -->
+        <div id="ithioCard" class="glass-panel p-4 relative overflow-hidden flex flex-col" style="border-top: 2px solid var(--tier3-ithio-border);">
+            <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(135deg, var(--ithio-grad-start) 0%, var(--ithio-grad-mid) 55%, var(--ithio-grad-end) 100%); opacity: var(--ithio-grad-opacity);"></div>
+            <div class="absolute -right-16 -top-16 w-56 h-56 rounded-full pointer-events-none" style="background: radial-gradient(circle, var(--ithio-glow), transparent 70%); filter: blur(8px);"></div>
+            <div class="relative z-10 flex-1 flex flex-col">
+                <div class="flex items-center gap-3 flex-wrap mb-1">
+                    <p class="text-xl md:text-2xl font-extrabold uppercase tracking-[0.18em] text-brand-ithio">ITHIO</p>
+                    <span class="text-base font-bold text-[var(--text-main)]" id="uiIthioDate">—</span>
+                    <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded" id="uiIthioPeriodChip" style="background: var(--ithio-chip-bg); color: var(--color-ithio); border: 1px solid var(--tier3-ithio-border); margin-left: 0.75rem;">—</span>
+                    <div class="ml-auto flex gap-1 p-1 rounded-lg" style="background: var(--input-bg); border: 1px solid var(--border-color);">
+                        <button type="button" onclick="setIthioPeriod('day')" data-ithio-period="day" class="ithio-tab active" title="Day">D</button>
+                        <button type="button" onclick="setIthioPeriod('week')" data-ithio-period="week" class="ithio-tab" title="Week">W</button>
+                        <button type="button" onclick="setIthioPeriod('month')" data-ithio-period="month" class="ithio-tab" title="Month">M</button>
+                        <button type="button" onclick="setIthioPeriod('all')" data-ithio-period="all" class="ithio-tab" title="All time">ALL</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Capital</p>
+                        <p class="text-2xl font-bold" id="uiIthioCapital">₹0</p>
+                    </div>
+                    <div class="sm:text-center">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Latest</p>
+                        <p class="text-2xl font-bold text-[var(--text-main)]" id="uiIthioLatest">₹0</p>
+                    </div>
+                    <div class="sm:text-right">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1" id="uiIthioNetLabel">Net</p>
+                        <div class="flex items-end justify-start sm:justify-end gap-2 flex-wrap">
+                            <p class="text-4xl md:text-5xl font-extrabold text-brand-ithio" id="uiIthioNet">₹0</p>
+                            <span class="pill-pnl zero" id="uiIthioReturn">0.00%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-auto pt-1 border-t border-[var(--border-color)] flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                    <span class="text-[var(--text-muted)]">Overall</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 border" style="background: var(--input-bg); border-color: var(--border-color);">
+                        <span class="font-bold text-brand-pnl" id="uiIthioWins">0W</span>
+                        <span class="text-[var(--text-muted)]">&middot;</span>
+                        <span class="font-bold text-rose-500" id="uiIthioLosses">0L</span>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -360,6 +434,7 @@
         </div>
     </div>
 
+    <script src="ithio.js"></script>
     <script>
         const SUPABASE_URL = "https://csksswotuhopqlfqilgg.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_a6--vkPhS3EjVF8DYQMUPQ_HQ1bwDIm";
@@ -368,19 +443,87 @@
         let allTrades = [];
         let generatedMonths = []; 
         let sortCol = ''; let sortAsc = true;
+        let ithioDaily = [];
+        let ithioPeriod = 'day';
         
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
         const pctFormatter = new Intl.NumberFormat('en-IN', { style: 'percent', minimumFractionDigits: 2 });
         const formatMoney = (v) => v ? formatter.format(v) : '-';
         const wholeFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
-        const formatWholeMoney = (v) => v ? wholeFormatter.format(v) : '-';
+        const formatWholeMoney = (v) => {
+            if (v === null || v === undefined || v === '') return '-';
+            const n = Number(v);
+            return Number.isFinite(n) ? wholeFormatter.format(n) : '-';
+        };
         
         const colorize = (v) => v > 0 ? 'text-brand-pnl font-bold' : (v < 0 ? 'text-rose-500 font-bold' : '');
+
+        // ---- Ithio card (separate automated options book) -------------------
+        const fmtSignedWhole = (v) => {
+            const n = Number(v) || 0;
+            if (n === 0) return wholeFormatter.format(0);
+            return (n > 0 ? '+' : '−') + wholeFormatter.format(Math.abs(n));
+        };
+        const fmtSignedPct = (v) => {
+            const n = Number(v) || 0;
+            if (n === 0) return '0.00%';
+            return (n > 0 ? '+' : '−') + Math.abs(n).toFixed(2) + '%';
+        };
+
+        function setIthioPeriod(p) {
+            if (['day', 'week', 'month', 'all'].indexOf(p) === -1) return;
+            ithioPeriod = p;
+            renderIthio();
+        }
+
+        function renderIthio() {
+            if (!window.IthioMath) return;
+            const s = window.IthioMath.computeSummary(ithioDaily, ithioPeriod);
+            const net = Number(s.net) || 0;
+            const ret = Number(s.returnPct) || 0;
+
+            const netEl = document.getElementById('uiIthioNet');
+            netEl.innerText = fmtSignedWhole(net);
+            netEl.className = `text-4xl md:text-5xl font-extrabold ${net > 0 ? 'text-brand-pnl' : net < 0 ? 'text-rose-500' : 'text-brand-ithio'}`;
+            netEl.title = `Gross ${fmtSignedWhole(s.gross)} · est. charges ${wholeFormatter.format(s.charges)} · net ${fmtSignedWhole(net)}`;
+
+            const retEl = document.getElementById('uiIthioReturn');
+            retEl.innerText = fmtSignedPct(ret);
+            retEl.className = `pill-pnl ${ret > 0 ? 'pos' : ret < 0 ? 'neg' : 'zero'}`;
+
+            const chips = {
+                day: '1 day',
+                week: '1 week',
+                month: '1 month',
+                all: `${s.days} ${s.days === 1 ? 'day' : 'days'}`
+            };
+            document.getElementById('uiIthioDate').innerText = s.asOf || '—';
+            document.getElementById('uiIthioPeriodChip').innerText = s.asOf ? (chips[s.period] || '1 day') : '—';
+            document.getElementById('uiIthioLatest').innerText = fmtSignedWhole(s.latest.net);
+            document.getElementById('uiIthioCapital').innerText = wholeFormatter.format(s.capital);
+            document.getElementById('uiIthioWins').innerText = `${s.overall.wins}W`;
+            document.getElementById('uiIthioLosses').innerText = `${s.overall.losses}L`;
+
+            document.querySelectorAll('[data-ithio-period]').forEach((btn) => {
+                btn.classList.toggle('active', btn.getAttribute('data-ithio-period') === ithioPeriod);
+            });
+            syncIthioHeight();
+        }
+
+        // Match the Ithio box to the top Total Portfolio card's height.
+        function syncIthioHeight() {
+            const hero = document.getElementById('portfolioHero');
+            const card = document.getElementById('ithioCard');
+            if (!hero || !card) return;
+            const h = hero.offsetHeight;
+            if (!h) return;                  // viewMaster is hidden (Monthly Log tab)
+            card.style.minHeight = Math.max(0, h - 24) + 'px';   // a little shorter than the hero
+        }
 
         function showLoader(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; }
         function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden')); }
         function toggleTheme() { const b = document.body; const i = document.getElementById('themeIcon'); if (b.getAttribute('data-theme') === 'light') { b.removeAttribute('data-theme'); i.innerText = '☀️'; } else { b.setAttribute('data-theme', 'light'); i.innerText = '🌙'; } }
-        function switchTab(t) { document.getElementById('tabMonthly').classList.remove('active'); document.getElementById('tabMaster').classList.remove('active'); document.getElementById('viewMonthly').classList.add('hidden'); document.getElementById('viewMaster').classList.add('hidden'); if(t === 'monthly') { document.getElementById('tabMonthly').classList.add('active'); document.getElementById('viewMonthly').classList.remove('hidden'); } else { document.getElementById('tabMaster').classList.add('active'); document.getElementById('viewMaster').classList.remove('hidden'); } }
+        function switchTab(t) { document.getElementById('tabMonthly').classList.remove('active'); document.getElementById('tabMaster').classList.remove('active'); document.getElementById('viewMonthly').classList.add('hidden'); document.getElementById('viewMaster').classList.add('hidden'); if(t === 'monthly') { document.getElementById('tabMonthly').classList.add('active'); document.getElementById('viewMonthly').classList.remove('hidden'); } else { document.getElementById('tabMaster').classList.add('active'); document.getElementById('viewMaster').classList.remove('hidden'); syncIthioHeight(); } }
         function setSort(c) { if(sortCol === c) sortAsc = !sortAsc; else { sortCol = c; sortAsc = true; } renderTable(); }
 
        function populateMonths() {
@@ -470,8 +613,24 @@
                 });
 
                 const globalPnl = gPnlSwing + gPnlSellio;
+
+                // Ithio is a separate book: it must never affect the totals above.
+                // A missing table (before the one-time SQL is run) must not break the journal.
+                try {
+                    const { data: ithioData, error: ithioError } = await db.from('ithio_daily').select('*').order('trade_date', { ascending: true });
+                    if (ithioError) {
+                        console.warn('Ithio table not ready:', ithioError.message);
+                        ithioDaily = [];
+                    } else {
+                        ithioDaily = ithioData || [];
+                    }
+                } catch (err) {
+                    console.warn('Ithio fetch failed:', err);
+                    ithioDaily = [];
+                }
                 
                 renderUI(monthlySip, globalSip, globalPnl, openStockInvested, openMarginBlocked, gPnlSwing, gPnlSellio);
+                renderIthio();
             } catch (err) { alert("Could not load data. Please check connection."); }
             showLoader(false);
         }
@@ -509,6 +668,9 @@
             
             document.getElementById('uiGlobalRoi').innerText = pctFormatter.format(gSip > 0 ? gPnl / gSip : 0);
             document.getElementById('uiGlobalRoi').className = `text-sm font-extrabold ${colorize(gPnl)}`;
+            const roiArrow = document.getElementById('uiRoiArrow');
+            roiArrow.innerText = gPnl > 0 ? '\u2197' : gPnl < 0 ? '\u2198' : '\u2192';
+            roiArrow.className = `text-sm font-extrabold ml-1 ${gPnl > 0 ? 'text-brand-pnl' : gPnl < 0 ? 'text-rose-500' : 'text-[var(--text-muted)]'}`;
             
             renderTable();
         }
@@ -710,6 +872,8 @@
             }
         }
         
+        window.addEventListener('resize', syncIthioHeight);
+        window.addEventListener('load', syncIthioHeight);
         populateMonths(); fetchDashboardData();
     </script>
 </body>
