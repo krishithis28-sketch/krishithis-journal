@@ -260,7 +260,7 @@
                     <div class="flex items-center gap-2 flex-wrap min-w-0">
                         <p class="text-xl md:text-2xl font-extrabold uppercase tracking-[0.18em] text-brand-ithio">ITHIO</p>
                         <span class="text-base font-bold text-[var(--text-main)]" id="uiIthioDate">—</span>
-                        <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded" id="uiIthioPeriodChip" style="background: var(--ithio-chip-bg); color: var(--color-ithio); border: 1px solid var(--tier3-ithio-border); margin-left: 0.25rem;">—</span>
+                        <span class="text-[10px] leading-none font-bold uppercase tracking-wide px-1.5 py-0.5 rounded" id="uiIthioPeriodChip" style="background: var(--ithio-chip-bg); color: var(--color-ithio); border: 1px solid var(--tier3-ithio-border); margin-left: 0.25rem;">—</span>
                     </div>
                     <div class="flex gap-1 p-1 rounded-lg shrink-0" style="background: var(--input-bg); border: 1px solid var(--border-color);">
                         <button type="button" onclick="setIthioPeriod('day')" data-ithio-period="day" class="ithio-tab active" title="Day">D</button>
@@ -502,8 +502,13 @@
                 month: '1 month',
                 all: `${s.days} ${s.days === 1 ? 'day' : 'days'}`
             };
+            const chipEl = document.getElementById('uiIthioPeriodChip');
+            const chipTitles = { day: 'Day', week: 'Week', month: 'Month', all: 'All time' };
+            chipEl.innerText = s.asOf ? (chips[s.period] || '1 day') : '—';
+            chipEl.title = s.period === 'all'
+                ? `All time · ${s.days} trading ${s.days === 1 ? 'day' : 'days'}`
+                : (chipTitles[s.period] || '');
             document.getElementById('uiIthioDate').innerText = s.asOf || '—';
-            document.getElementById('uiIthioPeriodChip').innerText = s.asOf ? (chips[s.period] || '1 day') : '—';
             document.getElementById('uiIthioLatest').innerText = fmtSignedWhole(s.latest.net);
             document.getElementById('uiIthioCapital').innerText = wholeFormatter.format(s.capital);
             document.getElementById('uiIthioWins').innerText = `${s.overall.wins}W`;
