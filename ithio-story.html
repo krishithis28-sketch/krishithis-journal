@@ -298,15 +298,12 @@
   }
   body.square .date { font-size: 30px; }
 
-  /* trident mark, sitting between the wordmark and the date.
-     absolutely placed so a taller emblem rises into the empty top padding
-     instead of growing the header row (only ~20px of vertical slack exists) */
-  .top { position: relative; }
-  .top .mark { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-               pointer-events: none; }
-  .top .mark svg { width: 60px; height: 77px; display: block; }
-  body.square .top .mark svg { width: 44px; height: 56px; }
-  body[data-style="broadsheet"] .top .mark svg { width: 70px; height: 90px; }
+  /* trident mark, sitting between the wordmark and the date */
+  .top .mark { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .top .mark .tri { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+                    font-size: 68px; line-height: 1; display: block; }
+  body.square .top .mark .tri { font-size: 48px; }
+  body[data-style="broadsheet"] .top .mark .tri { font-size: 76px; }
 
   .chiprow { margin-top: 30px; display: flex; align-items: center; gap: 16px; }
   body.square .chiprow { margin-top: 18px; }
@@ -935,29 +932,7 @@
     <section id="card">
       <header class="top">
         <div class="brand">ITHIO</div>
-        <div class="mark" aria-hidden="true">
-          <svg viewBox="0 0 100 128" role="presentation" focusable="false">
-            <defs>
-              <linearGradient id="mkGold" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#e8cf95" />
-                <stop offset=".38" stop-color="#c4a055" />
-                <stop offset=".74" stop-color="#95722c" />
-                <stop offset="1" stop-color="#6b4f18" />
-              </linearGradient>
-            </defs>
-            <g fill="url(#mkGold)">
-              <path d="M50 3 L36.5 31 H63.5 Z" />
-              <path d="M17 7 L4 35 H30 Z" />
-              <path d="M83 7 L70 35 H96 Z" />
-              <rect x="45.5" y="28" width="9" height="72" rx="4.5" />
-              <rect x="12.5" y="32" width="9" height="46" rx="4.5" />
-              <rect x="78.5" y="32" width="9" height="46" rx="4.5" />
-              <path d="M12.5 70 C12.5 90 28 99 50 99 C72 99 87.5 90 87.5 70
-                       L78.5 70 C78.5 84 66 90 50 90 C34 90 21.5 84 21.5 70 Z" />
-              <path d="M45.5 92 h9 v22 a4.5 4.5 0 0 1 -4.5 4.5 a4.5 4.5 0 0 1 -4.5 -4.5 Z" />
-            </g>
-          </svg>
-        </div>
+        <div class="mark" aria-hidden="true"><span class="tri">&#128305;</span></div>
         <div class="date" id="storyDate">&mdash;</div>
       </header>
 
