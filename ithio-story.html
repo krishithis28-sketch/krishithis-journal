@@ -298,6 +298,13 @@
   }
   body.square .date { font-size: 30px; }
 
+  /* trident mark, sitting between the wordmark and the date */
+  .top .mark { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .top .mark .tri { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+                    font-size: 54px; line-height: 1; display: block; }
+  body.square .top .mark .tri { font-size: 39px; }
+  body[data-style="broadsheet"] .top .mark .tri { font-size: 64px; }
+
   .chiprow { margin-top: 30px; display: flex; align-items: center; gap: 16px; }
   body.square .chiprow { margin-top: 18px; }
   .chip {
@@ -925,6 +932,7 @@
     <section id="card">
       <header class="top">
         <div class="brand">ITHIO</div>
+        <div class="mark" aria-hidden="true"><span class="tri">&#128305;</span></div>
         <div class="date" id="storyDate">&mdash;</div>
       </header>
 
