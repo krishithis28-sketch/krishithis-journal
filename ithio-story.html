@@ -249,6 +249,16 @@
   body.capturing #stage { transform: none !important; }
   body.capturing #holder { overflow: visible; height: auto !important; }
   body.capturing #bar { display: none !important; }
+  /* html2canvas paints shadows and then clips them at the canvas edge, which
+     leaves dark smudges along the borders. Export flat. */
+  body.capturing #card,
+  body.capturing #card * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+  /* one flat gradient instead of the layered radial glows html2canvas can't composite */
+  body.capturing #card { background: var(--card-flat, var(--card-bg)); }
 
   /* ---------- the card: 1080x1920 story, 1080x1080 square ---------- */
   #card {
@@ -425,7 +435,9 @@
   body[data-style="bloom"]      { --brand-bright: #ffffff; --brand-glow: none;
                                   --badge-bg: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
                                   --badge-line: rgba(76, 29, 149, .55); --badge-w: 2px;
-                                  --badge-shadow: 0 12px 30px rgba(91, 33, 182, .30); }
+                                  /* html2canvas cannot composite the card's layered radial glows,
+                                     so the export uses one flat gradient that approximates them */
+                                  --card-flat: linear-gradient(155deg, #f6ecff 0%, #ffe9f2 46%, #e8f6ff 100%); }
   body[data-style="broadsheet"] { --brand-bright: #ffffff; --brand-glow: 0 0 24px rgba(255, 255, 255, .30); }
   body[data-style="minimal"]    { --brand-bright: #1a1f2b; --brand-glow: none; }
 
