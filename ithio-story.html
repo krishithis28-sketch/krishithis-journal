@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="cache-control" content="no-store">
+<title>ITHIO — daily card</title>
+<!-- Ithio share card. Standalone: index.html (the journal) is untouched.
+     Numbers come from the same ithio_daily rows + IthioMath as the journal card.
+     See ithio-story.js for the URL parameters. -->
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Shared defaults — every template below overrides these. */
+    --stage-bg: #07080f;
+    --card-bg: #0d0f1c;
+    --ink: #f8fafc;
+    --muted: #98a0b8;
+    --line: rgba(255, 255, 255, .10);
+    --brand: #a78bfa;
+    --pos: #34d399;
+    --neg: #fb7185;
+    --zero: #94a3b8;
+    --tile: rgba(255, 255, 255, .045);
+    --brand-tint: rgba(167, 139, 250, .14);
+    --brand-line: rgba(167, 139, 250, .38);
+    --pos-tint: rgba(52, 211, 153, .16);
+    --neg-tint: rgba(251, 113, 133, .16);
+    --zero-tint: rgba(148, 163, 184, .14);
+    --radius: 30px;
+    --radius-chip: 999px;
+    --rule: 2px;
+    --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-num: var(--font-ui);
+    --brand-font: var(--font-ui);
+    --brand-weight: 900;
+    --brand-track: .20em;
+    --hero-weight: 900;
+    --hero-track: -.04em;
+    --hero-size: 196px;
+    --shadow: none;
+    --label-track: .16em;
+  }
+
+  /* ===== 1 · MIDNIGHT — deep navy, violet aura, mint numbers ============ */
+  body[data-style="midnight"] {
+    --stage-bg: #07080f;
+    --card-bg:
+      radial-gradient(92% 56% at 6% -12%, rgba(124, 58, 237, .34), transparent 62%),
+      radial-gradient(70% 46% at 102% 2%, rgba(16, 185, 129, .14), transparent 60%),
+      linear-gradient(180deg, #0d0f1d 0%, #080a12 100%);
+    --ink: #f8fafc;
+    --muted: #98a0b8;
+    --line: rgba(255, 255, 255, .10);
+    --brand: #a78bfa;
+    --pos: #34d399;
+    --neg: #fb7185;
+    --zero: #94a3b8;
+    --tile: rgba(255, 255, 255, .045);
+    --brand-tint: rgba(167, 139, 250, .14);
+    --brand-line: rgba(167, 139, 250, .38);
+    --pos-tint: rgba(52, 211, 153, .16);
+    --neg-tint: rgba(251, 113, 133, .16);
+    --zero-tint: rgba(148, 163, 184, .14);
+    --radius: 30px;
+    --radius-chip: 999px;
+    --rule: 2px;
+    --hero-weight: 900;
+    --hero-track: -.04em;
+    --hero-size: 198px;
+  }
+
+  /* ===== 2 · PAPER — cream ledger, serif labels, cognac ink ============= */
+  body[data-style="paper"] {
+    --stage-bg: #cdc5b4;
+    --card-bg:
+      repeating-linear-gradient(0deg, rgba(60, 40, 10, .022) 0 1px, transparent 1px 4px),
+      radial-gradient(70% 45% at 0% 0%, rgba(180, 140, 90, .16), transparent 62%),
+      linear-gradient(180deg, #fcf8f1 0%, #f1e9db 100%);
+    --ink: #22201c;
+    --muted: #7c7365;
+    --line: rgba(34, 32, 28, .18);
+    --brand: #8a5a2b;
+    --pos: #1c6b45;
+    --neg: #a32a2a;
+    --zero: #6b6257;
+    --tile: rgba(255, 255, 255, .55);
+    --brand-tint: rgba(138, 90, 43, .10);
+    --brand-line: rgba(138, 90, 43, .34);
+    --pos-tint: rgba(28, 107, 69, .12);
+    --neg-tint: rgba(163, 42, 42, .12);
+    --zero-tint: rgba(107, 98, 87, .12);
+    --radius: 14px;
+    --radius-chip: 6px;
+    --rule: 1px;
+    --font-ui: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --font-num: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --brand-weight: 700;
+    --brand-track: .30em;
+    --hero-weight: 700;
+    --hero-track: -.03em;
+    --hero-size: 190px;
+    --shadow: 0 36px 90px rgba(72, 52, 20, .20);
+    --label-track: .22em;
+  }
+
+  /* ===== 3 · NEON — trading terminal, cyan grid, mono type, glow ======== */
+  body[data-style="neon"] {
+    --stage-bg: #01030a;
+    --card-bg:
+      repeating-linear-gradient(90deg, rgba(34, 211, 238, .07) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(0deg, rgba(34, 211, 238, .07) 0 1px, transparent 1px 72px),
+      radial-gradient(72% 46% at 50% -10%, rgba(34, 211, 238, .24), transparent 62%),
+      linear-gradient(180deg, #05070f 0%, #02040a 100%);
+    --ink: #e6fbff;
+    --muted: #6e8ba0;
+    --line: rgba(34, 211, 238, .24);
+    --brand: #22d3ee;
+    --pos: #3dffa2;
+    --neg: #ff4d6d;
+    --zero: #8aa3b8;
+    --tile: rgba(34, 211, 238, .06);
+    --brand-tint: rgba(34, 211, 238, .12);
+    --brand-line: rgba(34, 211, 238, .40);
+    --pos-tint: rgba(61, 255, 162, .14);
+    --neg-tint: rgba(255, 77, 109, .14);
+    --zero-tint: rgba(138, 163, 184, .14);
+    --radius: 10px;
+    --radius-chip: 4px;
+    --rule: 1px;
+    --font-ui: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
+    --brand-weight: 700;
+    --brand-track: .34em;
+    --hero-weight: 700;
+    --hero-track: -.02em;
+    --hero-size: 202px;
+    --label-track: .20em;
+  }
+  body[data-style="neon"] .heroNet { text-shadow: 0 0 38px currentColor; }
+  body[data-style="neon"] .pill { box-shadow: 0 0 24px rgba(61, 255, 162, .26), inset 0 0 0 1px var(--pos-tint); }
+  body[data-style="neon"] .pill.neg { box-shadow: 0 0 24px rgba(255, 77, 109, .26), inset 0 0 0 1px var(--neg-tint); }
+  body[data-style="neon"] .spark .line { filter: drop-shadow(0 0 9px currentColor); }
+
+  /* ===== 4 · BLOOM — pastel gradient, frosted tile, soft shadow ========= */
+  body[data-style="bloom"] {
+    --stage-bg: #e7e1f4;
+    --card-bg:
+      radial-gradient(60% 40% at 82% 4%, rgba(255, 255, 255, .85), transparent 60%),
+      linear-gradient(155deg, #f3e9ff 0%, #ffe7f1 46%, #e4f5ff 100%);
+    --ink: #2a1b36;
+    --muted: #7b6a8a;
+    --line: rgba(42, 27, 54, .10);
+    --brand: #7c3aed;
+    --pos: #0f8a5f;
+    --neg: #d92d5c;
+    --zero: #6b6178;
+    --tile: rgba(255, 255, 255, .74);
+    --brand-tint: rgba(124, 58, 237, .10);
+    --brand-line: rgba(124, 58, 237, .26);
+    --pos-tint: rgba(15, 138, 95, .12);
+    --neg-tint: rgba(217, 45, 92, .12);
+    --zero-tint: rgba(107, 97, 120, .10);
+    --radius: 46px;
+    --radius-chip: 999px;
+    --rule: 2px;
+    --hero-weight: 900;
+    --hero-track: -.045em;
+    --hero-size: 192px;
+    --shadow: 0 44px 96px rgba(90, 48, 132, .22);
+  }
+  body[data-style="bloom"] .spark { box-shadow: 0 18px 40px rgba(90, 48, 132, .10); }
+
+  /* ===== 5 · BROADSHEET — ink navy, white type, poster scale =========== */
+  body[data-style="broadsheet"] {
+    --stage-bg: #0a1322;
+    --card-bg:
+      linear-gradient(205deg, rgba(255, 255, 255, .08) 0%, transparent 42%),
+      radial-gradient(80% 50% at 100% 0%, rgba(120, 170, 255, .18), transparent 58%),
+      linear-gradient(165deg, #13244c 0%, #0b1730 56%, #070f1d 100%);
+    --ink: #ffffff;
+    --muted: rgba(255, 255, 255, .62);
+    --line: rgba(255, 255, 255, .20);
+    --brand: #ffffff;
+    --pos: #7dffc4;
+    --neg: #ff9db1;
+    --zero: rgba(255, 255, 255, .60);
+    --tile: rgba(255, 255, 255, .05);
+    --brand-tint: rgba(255, 255, 255, .08);
+    --brand-line: rgba(255, 255, 255, .30);
+    --pos-tint: rgba(125, 255, 196, .14);
+    --neg-tint: rgba(255, 157, 177, .14);
+    --zero-tint: rgba(255, 255, 255, .10);
+    --radius: 3px;
+    --radius-chip: 3px;
+    --rule: 3px;
+    --brand-weight: 800;
+    --brand-track: .40em;
+    --hero-weight: 900;
+    --hero-track: -.055em;
+    --hero-size: 216px;
+    --label-track: .26em;
+  }
+  body[data-style="broadsheet"] .brand { font-size: 74px; }
+  body[data-style="broadsheet"] .chip { border-width: 3px; }
+
+  /* ===== 6 · MINIMAL — pure white, sharp rules, one accent ============== */
+  body[data-style="minimal"] {
+    --stage-bg: #d5d7dd;
+    --card-bg: linear-gradient(180deg, #ffffff 0%, #fdfdfe 100%);
+    --ink: #0b0d10;
+    --muted: #6f7681;
+    --line: rgba(11, 13, 16, .14);
+    --brand: #0b0d10;
+    --pos: #0b7a43;
+    --neg: #c2185b;
+    --zero: #4b5563;
+    --tile: #f6f7f9;
+    --brand-tint: rgba(11, 13, 16, .05);
+    --brand-line: rgba(11, 13, 16, .22);
+    --pos-tint: rgba(11, 122, 67, .10);
+    --neg-tint: rgba(194, 24, 91, .10);
+    --zero-tint: rgba(75, 85, 99, .10);
+    --radius: 0px;
+    --radius-chip: 0px;
+    --rule: 1px;
+    --brand-weight: 900;
+    --brand-track: .24em;
+    --hero-weight: 800;
+    --hero-track: -.05em;
+    --hero-size: 206px;
+  }
+  body[data-style="minimal"] .spark { border: 0; border-top: var(--rule) solid var(--line); border-radius: 0; background: transparent; padding-left: 0; padding-right: 0; }
+
+
+
+
+  html, body { background: var(--stage-bg); }
+  body {
+    font-family: var(--font-ui);
+    color: var(--ink);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 16px 0 132px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #holder { width: 100%; display: flex; justify-content: center; overflow: hidden; }
+  #stage { transform-origin: top center; }
+  body.capturing #stage { transform: none !important; }
+  body.capturing #holder { overflow: visible; height: auto !important; }
+  body.capturing #bar { display: none !important; }
+
+  /* ---------- the card: 1080x1920 story, 1080x1080 square ---------- */
+  #card {
+    --hero: var(--hero-size);
+    --pad-t: 248px;
+    --pad-b: 258px;
+    --pad-x: 88px;
+    position: relative;
+    width: 1080px; height: 1920px;
+    overflow: hidden;
+    padding: var(--pad-t) var(--pad-x) var(--pad-b);
+    display: flex; flex-direction: column;
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+  }
+  body.square #card {
+    --hero: 140px;
+    --pad-t: 68px;
+    --pad-b: 64px;
+    --pad-x: 68px;
+    height: 1080px;
+  }
+
+  .grow { flex: 1 1 auto; min-height: 0; }
+
+  /* header */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .brand {
+    font-family: var(--brand-font); font-size: 62px;
+    font-weight: var(--brand-weight); letter-spacing: var(--brand-track);
+    color: var(--brand); line-height: 1;
+  }
+  body.square .brand { font-size: 46px; }
+  .date {
+    font-family: var(--font-num); font-size: 40px; font-weight: 700; color: var(--muted);
+    font-variant-numeric: tabular-nums; letter-spacing: .01em;
+  }
+  body.square .date { font-size: 30px; }
+
+  .chiprow { margin-top: 30px; display: flex; align-items: center; gap: 16px; }
+  body.square .chiprow { margin-top: 18px; }
+  .chip {
+    display: inline-block;
+    font-size: 26px; font-weight: 800; letter-spacing: var(--label-track);
+    color: var(--brand);
+    border: 2px solid var(--brand-line);
+    background: var(--brand-tint);
+    border-radius: var(--radius-chip); padding: 10px 26px;
+  }
+  body.square .chip { font-size: 20px; padding: 7px 20px; }
+
+  /* hero number */
+  .hero { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+  .heroNet {
+    font-family: var(--font-num); font-size: var(--hero);
+    font-weight: var(--hero-weight); line-height: .94;
+    letter-spacing: var(--hero-track); font-variant-numeric: tabular-nums;
+  }
+  .heroNet.pos { color: var(--pos); }
+  .heroNet.neg { color: var(--neg); }
+  .heroNet.zero { color: var(--zero); }
+  .pill {
+    font-family: var(--font-num);
+    font-size: 40px; font-weight: 800; letter-spacing: .01em;
+    border-radius: var(--radius-chip); padding: 8px 26px;
+    font-variant-numeric: tabular-nums;
+  }
+  body.square .pill { font-size: 30px; padding: 6px 20px; }
+  .pill.pos { color: var(--pos); background: var(--pos-tint); }
+  .pill.neg { color: var(--neg); background: var(--neg-tint); }
+  .pill.zero { color: var(--zero); background: var(--zero-tint); }
+
+  /* stat strip */
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+    border-top: var(--rule) solid var(--line); border-bottom: var(--rule) solid var(--line);
+    padding: 26px 0; margin-top: 40px;
+  }
+  body.square .stats { padding: 16px 0; margin-top: 22px; gap: 12px; }
+  .stat .k {
+    display: block; font-size: 22px; font-weight: 800; letter-spacing: var(--label-track);
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .stat .n {
+    font-family: var(--font-num);
+    font-size: 46px; font-weight: 900; letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  body.square .stat .k { font-size: 17px; }
+  body.square .stat .n { font-size: 34px; }
+
+  /* sparkline tile */
+  .spark {
+    margin-top: 40px;
+    border: var(--rule) solid var(--line); border-radius: var(--radius);
+    background: var(--tile);
+    padding: 26px 30px 20px;
+  }
+  body.square .spark { margin-top: 22px; padding: 18px 22px 12px; border-radius: var(--radius); }
+  .sparkHead {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    font-size: 22px; font-weight: 800; letter-spacing: var(--label-track); color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .sparkHead b { color: var(--ink); }
+  body.square .sparkHead { font-size: 17px; }
+  .spark svg { display: block; width: 100%; height: 200px; }
+  body.square .spark svg { height: 150px; }
+  .spark .line { fill: none; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+  .spark .area { stroke: none; }
+  .spark .line.pos { stroke: var(--pos); }
+  .spark .line.neg { stroke: var(--neg); }
+  .spark .area.pos { fill: url(#gradPos); }
+  .spark .area.neg { fill: url(#gradNeg); }
+
+  /* period rows */
+  .rows { margin-top: 36px; }
+  body.square .rows { margin-top: 20px; }
+  .row {
+    display: grid; grid-template-columns: 1fr auto auto; align-items: baseline; gap: 20px;
+    padding: 22px 0; border-top: var(--rule) solid var(--line);
+  }
+  .row:first-child { border-top: var(--rule) solid var(--line); }
+  body.square .row { padding: 13px 0; }
+  .row .lbl {
+    font-size: 24px; font-weight: 800; letter-spacing: var(--label-track); color: var(--muted);
+  }
+  body.square .row .lbl { font-size: 18px; }
+  .row .v {
+    font-family: var(--font-num);
+    font-size: 44px; font-weight: 900; font-variant-numeric: tabular-nums;
+    letter-spacing: -.02em; text-align: right;
+  }
+  body.square .row .v { font-size: 32px; }
+  .row .p {
+    font-family: var(--font-num);
+    font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums;
+    min-width: 150px; text-align: right;
+  }
+  body.square .row .p { font-size: 22px; min-width: 110px; }
+  .v.pos, .p.pos { color: var(--pos); }
+  .v.neg, .p.neg { color: var(--neg); }
+  .v.zero, .p.zero { color: var(--zero); }
+
+  /* footer */
+  .foot { text-align: center; padding-top: 8px; }
+  .foot .cap {
+    font-size: 26px; font-weight: 700; color: var(--muted); letter-spacing: .02em;
+  }
+  body.square .foot .cap { font-size: 20px; }
+  .foot .handle {
+    font-size: 34px; font-weight: 900; color: var(--brand); letter-spacing: .06em;
+    margin-top: 10px;
+  }
+  .foot .disc {
+    font-size: 22px; font-weight: 600; color: var(--muted); opacity: .85;
+    margin-top: 12px; letter-spacing: .02em;
+  }
+  body.square .foot .disc { font-size: 17px; }
+
+  /* NET amount uses the brand colour, a shade darker; the W/L chip needs a
+   * surface that reads on both light and dark templates. */
+  body[data-style="midnight"]   { --net: #8b5cf6; --pill-bg: rgba(255, 255, 255, .10); }
+  body[data-style="paper"]      { --net: #6b4423; --pill-bg: rgba(255, 255, 255, .80); }
+  body[data-style="neon"]       { --net: #0891b2; --pill-bg: rgba(34, 211, 238, .10); }
+  body[data-style="bloom"]      { --net: #5b21b6; --pill-bg: rgba(255, 255, 255, .88); }
+  body[data-style="broadsheet"] { --net: #dbe4ff; --pill-bg: rgba(255, 255, 255, .12); }
+  body[data-style="minimal"]    { --net: #000000; --pill-bg: #f4f5f7; }
+
+  /* badge text is a brighter shade of each brand, with a soft glow on dark skins */
+  body[data-style="midnight"]   { --brand-bright: #c4b5fd; --brand-glow: 0 0 26px rgba(196, 181, 253, .35); }
+  body[data-style="paper"]      { --brand-bright: #a4693a; --brand-glow: 0 0 18px rgba(164, 105, 58, .18); }
+  body[data-style="neon"]       { --brand-bright: #67e8f9; --brand-glow: 0 0 28px rgba(103, 232, 249, .40); }
+  body[data-style="bloom"]      { --brand-bright: #ffffff; --brand-glow: none;
+                                  --badge-bg: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+                                  --badge-line: rgba(76, 29, 149, .55); --badge-w: 2px;
+                                  --badge-shadow: 0 12px 30px rgba(91, 33, 182, .30); }
+  body[data-style="broadsheet"] { --brand-bright: #ffffff; --brand-glow: 0 0 24px rgba(255, 255, 255, .30); }
+  body[data-style="minimal"]    { --brand-bright: #1a1f2b; --brand-glow: none; }
+
+  #blkJournal .jv.net { color: var(--net); }
+  #blkJournal .ovpill {
+    display: inline-flex; align-items: center; gap: 14px;
+    background: var(--pill-bg); border-radius: 999px; padding: 8px 22px;
+  }
+  #blkJournal .ovpill b {
+    font-family: var(--font-num); font-size: 30px; font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+  #blkJournal .ovpill .w { color: var(--pos); }
+  #blkJournal .ovpill .l { color: var(--neg); }
+  #blkJournal .ovpill i { font-style: normal; color: var(--muted); font-size: 24px; }
+
+  /* smaller % chip under LATEST (id rule, so setTone can't drop the size) */
+  #jLatestPct {
+    font-size: 24px; font-weight: 800; padding: 3px 14px; border-radius: 999px;
+  }
+  body.square #jLatestPct { font-size: 18px; padding: 2px 10px; }
+
+  /* Overall W / L as their own chips */
+  #blkJournal .jfoot { align-items: center; }
+  #blkJournal .wchip {
+    font-family: var(--font-num); font-size: 28px; font-weight: 900;
+    font-variant-numeric: tabular-nums; border-radius: 999px; padding: 6px 20px;
+  }
+  #blkJournal .wchip.w { color: var(--pos); background: var(--pos-tint); }
+  #blkJournal .wchip.l { color: var(--neg); background: var(--neg-tint); }
+  body.square #blkJournal .wchip { font-size: 20px; padding: 4px 14px; }
+  #winsN { color: var(--pos); }
+  #lossesN { color: var(--neg); }
+
+  /* ---------- journal-card replica ---------- */
+  body[data-style="midnight"] {
+    --tile-grad: linear-gradient(135deg, rgba(124, 58, 237, .34) 0%, rgba(14, 116, 144, .18) 55%, rgba(255, 255, 255, .05) 100%);
+    --tile-grad-net: linear-gradient(150deg, rgba(139, 92, 246, .30), rgba(139, 92, 246, .06));
+  }
+  body[data-style="paper"] {
+    --tile-grad: linear-gradient(135deg, rgba(214, 178, 130, .34) 0%, rgba(255, 252, 246, .80) 60%, rgba(255, 255, 255, .55) 100%);
+    --tile-grad-net: linear-gradient(150deg, rgba(138, 90, 43, .16), rgba(138, 90, 43, .03));
+  }
+  body[data-style="neon"] {
+    --tile-grad: linear-gradient(135deg, rgba(34, 211, 238, .26) 0%, rgba(168, 85, 247, .16) 55%, rgba(34, 211, 238, .04) 100%);
+    --tile-grad-net: linear-gradient(150deg, rgba(8, 145, 178, .30), rgba(8, 145, 178, .05));
+  }
+  body[data-style="bloom"] {
+    --tile-grad: linear-gradient(135deg, rgba(167, 139, 250, .38) 0%, rgba(244, 114, 182, .20) 46%, rgba(255, 255, 255, .72) 100%);
+    --tile-grad-net: linear-gradient(150deg, rgba(124, 58, 237, .22), rgba(124, 58, 237, .04));
+  }
+  body[data-style="broadsheet"] {
+    --tile-grad: linear-gradient(135deg, rgba(120, 170, 255, .30) 0%, rgba(255, 255, 255, .10) 55%, rgba(255, 255, 255, .02) 100%);
+    --tile-grad-net: linear-gradient(150deg, rgba(219, 228, 255, .28), rgba(219, 228, 255, .05));
+  }
+  body[data-style="minimal"] {
+    --tile-grad: linear-gradient(135deg, #ffffff 0%, #f0f2f6 55%, #e7eaf0 100%);
+    --tile-grad-net: linear-gradient(150deg, #eceef2, #f7f8fa);
+  }
+
+  #blkJournal { margin-top: 8px; }
+  /* one gradient panel holding the three metrics, hairline-divided */
+  #blkJournal .jpanel {
+    display: grid; grid-template-columns: 1fr 1fr 1.2fr;
+    background: var(--tile-grad);
+    border: var(--rule) solid var(--line);
+    border-radius: calc(var(--radius) * .8);
+    padding: 26px 30px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 18px 44px rgba(90, 48, 132, .10);
+  }
+  /* align-items:flex-start keeps the % pill hugging its own text */
+  #blkJournal .jcell {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+    min-width: 0; padding: 0 26px;
+    border-left: 1px solid var(--line);
+  }
+  #blkJournal .jcell:first-child { padding-left: 0; border-left: 0; }
+  #blkJournal .jcell:last-child { padding-right: 0; }
+  #blkJournal .k {
+    font-size: 20px; font-weight: 800; letter-spacing: var(--label-track); color: var(--muted);
+  }
+  #blkJournal .jv {
+    font-family: var(--font-num); font-size: 40px; font-weight: 900;
+    letter-spacing: -.03em; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  #blkJournal .jv.big { font-size: 58px; }
+  #blkJournal .jv.pos { color: var(--pos); }
+  #blkJournal .jv.neg { color: var(--neg); }
+  #blkJournal .jv.zero { color: var(--ink); }
+  #blkJournal .jfoot {
+    display: flex; align-items: center; gap: 12px; justify-content: flex-start;
+    margin-top: 40px; padding-top: 18px; border-top: var(--rule) solid var(--line);
+  }
+  #blkJournal .jfoot .kw { margin-right: 8px; }
+  #blkJournal .jfoot .kw {
+    font-size: 24px; font-weight: 700; color: var(--muted); letter-spacing: .02em;
+  }
+  #blkJournal .jfoot b {
+    font-family: var(--font-num); font-size: 30px; font-weight: 900; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  /* the replica is a short card: give it breathing room instead of hugging the top */
+  body[data-detail="card"] #card { --pad-t: 400px; }
+  body[data-detail="card"] #blkJournal { margin-top: 26px; }
+  body[data-detail="card"] .foot { margin-top: 40px; }
+  body.square #blkJournal .jv { font-size: 30px; }
+  body.square #blkJournal .jv.big { font-size: 42px; }
+  body.square #blkJournal .jtile { padding: 14px 16px; gap: 6px; }
+  body.square[data-detail="card"] #card { --pad-t: 120px; }
+  body.square #blkJournal .jfoot { margin-top: 26px; }
+
+
+  [hidden] { display: none !important; }
+  .block { margin-top: 26px; }
+  .blockHead {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    font-size: 21px; font-weight: 800; letter-spacing: var(--label-track);
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .headNote { color: var(--ink); font-weight: 800; letter-spacing: .02em; font-size: 21px; }
+  .headNote .cg { color: var(--pos); }
+  .headNote .cr { color: var(--neg); }
+  .tag {
+    font-size: 21px; font-weight: 800; letter-spacing: var(--label-track);
+    color: var(--muted); margin-left: 6px;
+  }
+
+  #blkEquity svg { display: block; width: 100%; height: 200px; }
+  #blkEquity .line { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+  #blkEquity .line.pos { stroke: var(--pos); }
+  #blkEquity .line.neg { stroke: var(--neg); }
+  #blkEquity .area.pos { fill: url(#eqGradPos); stroke: none; }
+  #blkEquity .area.neg { fill: url(#eqGradNeg); stroke: none; }
+
+  .bars { display: flex; align-items: center; justify-content: space-between; height: 84px; gap: 6px; }
+  .bar { flex: 1 1 0; border-radius: 3px; height: calc(var(--h, 20) * 1%); min-height: 5px; }
+  .bar.pos { background: var(--pos); }
+  .bar.neg { background: var(--neg); }
+  .bar.zero { background: var(--line); }
+  .barAxis {
+    display: flex; justify-content: space-between; margin-top: 6px;
+    font-size: 18px; font-weight: 700; letter-spacing: .06em; color: var(--muted);
+  }
+
+  .risk { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .risk .tile {
+    border: var(--rule) solid var(--line); border-radius: calc(var(--radius) * .4);
+    background: var(--tile); padding: 14px 16px; min-width: 0;
+  }
+  .risk .tile.span2 { grid-column: span 2; }
+  .risk .tile .k {
+    display: block; font-size: 17px; font-weight: 800; letter-spacing: var(--label-track);
+    color: var(--muted); margin-bottom: 6px; white-space: nowrap;
+  }
+  .risk .tile .n {
+    font-family: var(--font-num); font-size: 34px; font-weight: 900;
+    letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .risk .tile .n.pos { color: var(--pos); }
+  .risk .tile .n.neg { color: var(--neg); }
+  .risk .tile .n.zero { color: var(--ink); }
+
+  .lines .note {
+    display: block; font-size: 19px; font-weight: 800;
+    letter-spacing: .10em; color: var(--muted);
+  }
+  .lines .note.pos { color: var(--pos); }
+  .lines .note.neg { color: var(--neg); }
+  .lines .note.zero { color: var(--muted); }
+
+  /* denser presets: the pro/analyst cards carry more sections */
+  body[data-detail="pro"] #card,
+  body[data-detail="analyst"] #card { --hero: 156px; }
+  body[data-detail="pro"] .block,
+  body[data-detail="analyst"] .block { margin-top: 18px; }
+  body[data-detail="pro"] .stats,
+  body[data-detail="analyst"] .stats { padding: 16px 0; margin-top: 24px; }
+  body[data-detail="pro"] .stat .n,
+  body[data-detail="analyst"] .stat .n { font-size: 38px; }
+  body[data-detail="pro"] #blkEquity svg,
+  body[data-detail="analyst"] #blkEquity svg { height: 172px; }
+  body[data-detail="pro"] .bars,
+  body[data-detail="analyst"] .bars { height: 66px; }
+  body[data-detail="pro"] .row,
+  body[data-detail="analyst"] .row { padding: 14px 0; }
+  body[data-detail="pro"] .row .v,
+  body[data-detail="analyst"] .row .v { font-size: 38px; }
+  body.square #blkEquity svg { height: 130px; }
+  body.square .bars { height: 54px; }
+  body.square .risk .tile { padding: 10px 12px; }
+  body.square .risk .tile .n { font-size: 26px; }
+
+  /* analyst is the densest: tighten further so the footer never clips */
+  body[data-detail="analyst"] #card { --hero: 132px; }
+  body[data-detail="analyst"] .block { margin-top: 14px; }
+  body[data-detail="analyst"] #blkEquity svg { height: 150px; }
+  body[data-detail="analyst"] .row { padding: 11px 0; }
+  body[data-detail="analyst"] .row .v { font-size: 34px; }
+
+  /* 1:1 has 840px less height than 9:16 */
+  body.square #card { --hero: 112px; }
+  body.square .block { margin-top: 10px; }
+  body.square #blkTag { display: none; }              /* descriptor is a 9:16 luxury */
+  body.square .stats { padding: 8px 0; margin-top: 16px; }
+  body.square .stat .n { font-size: 30px; }
+  body.square .stat .k { font-size: 15px; margin-bottom: 4px; }
+  body.square #blkEquity svg { height: 84px; }
+  body.square .bars { height: 42px; }
+  body.square .row { padding: 8px 0; }
+  body.square .row .v { font-size: 28px; }
+  body.square .risk .tile { padding: 6px 9px; }
+  body.square .risk .tile .k { font-size: 13px; margin-bottom: 3px; }
+  body.square .risk .tile .n { font-size: 22px; }
+  body.square .lines .note { font-size: 15px; }
+
+  /* ---------- month picker (the Month row is clickable) ---------- */
+  .row { position: relative; }
+  .monthBtn {
+    display: inline-flex; align-items: baseline; gap: 8px;
+    font: inherit; cursor: pointer; border: 0; background: none; padding: 0;
+    text-align: left;
+    font-size: 24px; font-weight: 800; letter-spacing: var(--label-track);
+    border-radius: 10px;
+  }
+  body.square .monthBtn { font-size: 18px; }
+  .monthBtn:hover { color: var(--ink); }
+  .monthBtn .mlabel { color: var(--muted); }
+  .monthBtn #monthName { color: var(--ink); letter-spacing: .04em; }
+  .monthBtn .caret { font-style: normal; font-size: .8em; color: var(--muted); }
+  body.clean .monthBtn .caret { display: none; }
+  .monthMenu {
+    position: fixed; z-index: 60;
+    display: flex; flex-direction: column; min-width: 240px;
+    max-height: 62vh; overflow-y: auto;
+    background: var(--tile-grad), var(--card-bg);
+    border: var(--rule) solid var(--line);
+    border-radius: calc(var(--radius) * .5);
+    box-shadow: 0 22px 60px rgba(20, 20, 42, .30);
+    padding: 8px; gap: 2px;
+  }
+  body.capturing .monthMenu { display: none !important; }
+  .monthMenu .mopt {
+    font: inherit; font-size: 22px; font-weight: 800; letter-spacing: .06em;
+    text-align: left; cursor: pointer; border: 0; background: none;
+    color: var(--ink); padding: 10px 14px; border-radius: 8px;
+    font-family: var(--font-num); font-variant-numeric: tabular-nums;
+  }
+  .monthMenu .mopt:hover { background: var(--brand-tint); }
+  .monthMenu .mopt.active { background: var(--brand-tint); color: var(--brand); }
+
+  /* ---------- month calendar heatmap ---------- */
+  #blkCalendar { margin-top: 26px; }
+  .calDow, .calGrid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+  }
+  .calDow {
+    font-size: 16px; font-weight: 800; letter-spacing: .10em; color: var(--muted);
+    text-align: center; margin-bottom: 8px;
+  }
+  .calGrid { row-gap: 6px; }
+  .calCell {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; min-height: 104px; padding: 6px 4px;
+    border-radius: calc(var(--radius) * .35);
+    font-family: var(--font-num); font-variant-numeric: tabular-nums;
+  }
+  .calCell b { font-size: 17px; font-weight: 800; color: var(--muted); line-height: 1; }
+  .calCell i { font-style: normal; font-size: 15px; font-weight: 800; line-height: 1; }
+  .calCell.pos { background: var(--pos-tint); }
+  .calCell.pos b { color: var(--pos); }
+  .calCell.pos i { color: var(--pos); }
+  .calCell.neg { background: var(--neg-tint); }
+  .calCell.neg b { color: var(--neg); }
+  .calCell.neg i { color: var(--neg); }
+  .calCell.flat, .calCell.out { background: transparent; }
+  .calCell.out { background: none; }
+  .calCell.flat b { color: var(--muted); }
+  body.square .calCell { min-height: 34px; padding: 3px 2px; gap: 1px; }
+  body.square .calCell b, body.square .calCell i { font-size: 11px; }
+  body.square .calDow { font-size: 11px; margin-bottom: 4px; }
+  body.square #blkCalendar { margin-top: 12px; }
+
+  /* ---------- last-N-months bars ---------- */
+  .mbars { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; height: 210px; }
+  .mbar { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+  .mbar b {
+    font-family: var(--font-num); font-size: 17px; font-weight: 800;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .mbar i { display: flex; align-items: flex-end; width: 100%; height: 110px; }
+  .mbar s { display: block; width: 100%; border-radius: 8px 8px 3px 3px; text-decoration: none; }
+  .mbar u { font-size: 16px; font-weight: 800; letter-spacing: .12em; color: var(--muted); text-decoration: none; }
+  .mbar.pos b, .mbar.pos u { color: var(--pos); }
+  .mbar.pos s { background: var(--pos); }
+  .mbar.neg b, .mbar.neg u { color: var(--neg); }
+  .mbar.neg s { background: var(--neg); }
+  .mbar.zero b { color: var(--muted); }
+  .mbar.zero s { background: var(--line); }
+  body.square .mbars { height: 120px; }
+  body.square .mbar i { height: 64px; }
+  body.square .mbar b, body.square .mbar u { font-size: 11px; }
+
+  /* ---------- best / worst ---------- */
+  .bw { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .bwcell {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    background: var(--tile-grad); border: var(--rule) solid var(--line);
+    border-radius: calc(var(--radius) * .5); padding: 16px 20px;
+  }
+  .bwcell .k { font-size: 17px; font-weight: 800; letter-spacing: var(--label-track); color: var(--muted); }
+  .bwv {
+    font-family: var(--font-num); font-size: 34px; font-weight: 900;
+    letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+  }
+  .bwv.pos { color: var(--pos); }
+  .bwv.neg { color: var(--neg); }
+  .bwd { font-size: 16px; font-weight: 700; color: var(--muted); letter-spacing: .04em; }
+  body.square .bwv { font-size: 22px; }
+
+  /* ---------- goal progress ---------- */
+  .goal {
+    display: flex; flex-direction: column; gap: 8px;
+    background: var(--tile-grad); border: var(--rule) solid var(--line);
+    border-radius: calc(var(--radius) * .5); padding: 16px 20px;
+  }
+  .goalHead {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--font-num); font-size: 20px; font-weight: 800; color: var(--ink);
+  }
+  .goalHead #goalPct { color: var(--brand); font-weight: 900; }
+  .goalTrack { height: 14px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .goalFill { height: 100%; width: 0; border-radius: 999px; background: var(--pos); }
+  .goalFoot { font-size: 16px; font-weight: 700; color: var(--muted); letter-spacing: .03em; }
+
+  /* ---------- equity candle chart ---------- */
+  .dnRow { display: flex; align-items: center; gap: 26px; }
+  .dnRow .block { margin-top: 0; }
+  .dn { display: flex; align-items: center; justify-content: flex-start; flex: 0 0 auto; }
+  .cd { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .cdHead {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    font-size: 16px; font-weight: 800; letter-spacing: var(--label-track); color: var(--muted);
+  }
+  .cdHead .headNote { font-size: 16px; letter-spacing: .02em; color: var(--ink); }
+  #candleSvg { display: block; width: 100%; height: 196px; flex: 0 0 auto; }
+  #candleSvg .ax { stroke: var(--muted); stroke-opacity: .65; stroke-width: 3; stroke-linecap: square; }
+  #candleSvg .wick { stroke-width: 2.5; }
+  #candleSvg .wick.up { stroke: var(--pos); }
+  #candleSvg .wick.down { stroke: var(--neg); }
+  #candleSvg .body.up { fill: var(--pos); }
+  #candleSvg .body.down { fill: var(--neg); }
+  #candleSvg .xl, #candleSvg .yl {
+    fill: var(--muted); font-size: 17px; font-weight: 800;
+    font-family: var(--font-num); letter-spacing: .02em;
+  }
+  #candleSvg .yl { fill: var(--ink); }
+  #candleSvg .yl.base { fill: var(--ink); font-weight: 900; }
+  body.square #candleSvg { height: 150px; }
+  /* ---------- footer badge ---------- */
+  .footBadge {
+    display: inline-flex; align-items: center;
+    padding: 14px 40px; border-radius: 999px;
+    background: var(--badge-bg, var(--brand-tint));
+    border: var(--badge-w, var(--rule)) solid var(--badge-line, var(--brand-line));
+    box-shadow: var(--badge-shadow, none);
+    color: var(--brand-bright, var(--brand));
+    text-shadow: var(--brand-glow, none);
+    font-family: var(--font-ui); font-size: 44px; font-weight: 900; letter-spacing: .02em;
+  }
+  body.square .footBadge { font-size: 36px; padding: 12px 30px; }
+  .footBadge .bAt { font-weight: 900; }
+
+  /* badge colour combos (?badge=inkred|mono|paperred|violet) */
+  body[data-badge="inkred"] .footBadge {
+    background: #0b0b0f; color: #ffffff; border-color: #1f2430;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .35); text-shadow: none;
+  }
+  body[data-badge="inkred"] .footBadge .bAt { color: #f43f5e; }
+
+  body[data-badge="mono"] .footBadge {
+    background: #0b0b0f; color: #ffffff; border-color: #ffffff;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .35); text-shadow: none;
+  }
+
+  body[data-badge="paperred"] .footBadge {
+    background: #ffffff; color: #0b0b0f; border-color: rgba(11, 13, 16, .18);
+    box-shadow: 0 12px 28px rgba(11, 13, 16, .12); text-shadow: none;
+  }
+  body[data-badge="paperred"] .footBadge .bAt { color: #e11d48; }
+
+  /* dot variant: no "@" glyph — a red disc, white name, red "_tail" */
+  body[data-badge="dot"] .footBadge {
+    background: #0b0b0f; color: #ffffff; border-color: #1f2430;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .35); text-shadow: none;
+  }
+  body[data-badge="dot"] .footBadge .bAt {
+    font-size: 0;                 /* hides the @ glyph */
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #f43f5e; margin-right: 14px;
+    display: inline-block; flex: 0 0 auto;
+  }
+  body[data-badge="dot"] .footBadge .bTail { color: #f43f5e; }
+
+  .ringWrap { position: relative; width: 150px; height: 150px; flex: 0 0 auto; }
+  .ringWrap svg { display: block; width: 100%; height: 100%; }
+  .ringWrap .track { fill: none; stroke: var(--line); stroke-width: 12; }
+  .ringWrap .val { fill: none; stroke: var(--pos); stroke-width: 12; stroke-linecap: round; }
+  .ringPct {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-num); font-size: 40px; font-weight: 900;
+    letter-spacing: -.02em; color: var(--ink);
+  }
+  .ringMeta { display: none; }
+  body.square .ringWrap { width: 170px; height: 170px; }
+  body.square .ringPct { font-size: 44px; }
+
+  /* the card is short without a calendar: two blocks share the height */
+  body[data-detail="card"] #card { --pad-t: 250px; --pad-b: 210px; }
+  body[data-detail="card"] #blkJournal { margin-top: 22px; }
+  body[data-detail="card"] .foot { margin-top: 24px; }
+
+  /* In card mode the CALENDAR absorbs the leftover height: rows are 1fr, so a
+     5-week and a 6-week month both fit with no overflow and no dead space. */
+  body[data-detail="card"] .grow { display: block; }
+  body[data-detail="card"] #blkCalendar {
+    flex: 1 1 auto; display: flex; flex-direction: column;
+    min-height: 0; margin-bottom: 10px;
+  }
+  body[data-detail="card"] .calGrid {
+    flex: 1 1 auto; grid-auto-rows: 1fr; min-height: 0;
+  }
+  body[data-detail="card"] .calCell { min-height: 0; }
+  /* nothing stretches any more: content sits at the top, the bottom stays free */
+  body[data-detail="card"] #blkDonut { flex: 0 0 auto; }
+  body[data-detail="card"] #blkCalendar { flex: 0 0 auto; height: 344px; }
+  body.square[data-detail="card"] #card { --pad-t: 80px; --pad-b: 70px; }
+  body.square[data-detail="card"] #blkCalendar { display: none; }
+
+  /* ---------- control bar (never part of the card) ---------- */
+  #bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    gap: 10px; padding: 12px 16px;
+    background: rgba(12, 12, 20, .88);
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    backdrop-filter: blur(8px);
+    color: #e5e7eb; font-size: 13px; font-weight: 700; letter-spacing: .08em;
+  }
+  body.clean #bar { display: none !important; }
+  .grp { display: flex; align-items: center; gap: 6px; }
+  #bar button {
+    font: inherit; letter-spacing: .1em; cursor: pointer;
+    color: #e5e7eb; background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .16); border-radius: 8px;
+    padding: 8px 12px;
+  }
+  #bar button:hover { background: rgba(255, 255, 255, .16); }
+  #bar button.active { background: #6d28d9; border-color: #8b5cf6; color: #fff; }
+  #bar button.primary { background: #0f9d58; border-color: #10b981; color: #fff; }
+  #bar select {
+    font: inherit; letter-spacing: .06em; cursor: pointer;
+    color: #e5e7eb; background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .16); border-radius: 8px;
+    padding: 8px 10px;
+  }
+  #bar select option { background: #14141c; color: #e5e7eb; }
+  #dayLabel { min-width: 128px; text-align: center; font-variant-numeric: tabular-nums; }
+  #hint { flex-basis: 100%; text-align: center; font-weight: 500; letter-spacing: 0;
+          color: #9ca3af; min-height: 16px; }
+  @media print { #bar { display: none !important; } }
+</style>
+</head>
+<body data-style="bloom" data-ready="0">
+<div id="holder">
+  <div id="stage">
+    <section id="card">
+      <header class="top">
+        <div class="brand">ITHIO</div>
+        <div class="date" id="storyDate">&mdash;</div>
+      </header>
+
+      <div class="chiprow">
+        <span class="chip" id="storyChip">DAY</span>
+        <span class="tag" id="blkTag"><span id="tagLine"></span></span>
+      </div>
+
+      <div class="hero" id="blkHero" hidden>
+        <div class="heroNet zero" id="heroNet">&mdash;</div>
+        <div class="pill zero" id="heroPct">&mdash;</div>
+      </div>
+
+      <!-- journal-card replica: the exact fields of the journal's Ithio card -->
+      <div class="block journal" id="blkJournal">
+        <div class="jpanel">
+          <div class="jcell">
+            <span class="k">CAPITAL</span>
+            <span class="jv" id="jCapital">&mdash;</span>
+          </div>
+          <div class="jcell">
+            <span class="k">LATEST</span>
+            <span class="jv" id="jLatest">&mdash;</span>
+            <span class="pill zero" id="jLatestPct">&mdash;</span>
+          </div>
+          <div class="jcell">
+            <span class="k">NET</span>
+            <span class="jv big" id="jNet">&mdash;</span>
+          </div>
+        </div>
+        <div class="jfoot">
+          <span class="kw">Overall</span>
+          <span class="wchip w" id="jWins">&mdash;</span>
+          <span class="wchip l" id="jLosses">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="stats" id="blkStats" hidden>
+        <div class="stat"><span class="k">WINS</span><span class="n" id="winsN">&mdash;</span></div>
+        <div class="stat"><span class="k">LOSSES</span><span class="n" id="lossesN">&mdash;</span></div>
+        <div class="stat"><span class="k">WIN RATE</span><span class="n" id="wrN">&mdash;</span></div>
+        <div class="stat"><span class="k">SESSIONS</span><span class="n" id="daysN">&mdash;</span></div>
+      </div>
+
+      <!-- last N months -->
+      <div class="block" id="blkMonthBars" hidden>
+        <div class="blockHead">
+          <span>LAST 6 MONTHS</span>
+          <span class="headNote" id="mbNote">&mdash;</span>
+        </div>
+        <div class="mbars" id="mbars"></div>
+      </div>
+
+      <!-- best / worst session -->
+      <div class="block bw" id="blkBestWorst" hidden>
+        <div class="bwcell">
+          <span class="k">BEST DAY</span>
+          <span class="bwv pos" id="bwBest">&mdash;</span>
+          <span class="bwd" id="bwBestDay">&mdash;</span>
+        </div>
+        <div class="bwcell">
+          <span class="k">WORST DAY</span>
+          <span class="bwv neg" id="bwWorst">&mdash;</span>
+          <span class="bwd" id="bwWorstDay">&mdash;</span>
+        </div>
+      </div>
+
+      <!-- progress toward ?goal= -->
+      <div class="block goal" id="blkGoal" hidden>
+        <div class="goalHead">
+          <span id="goalLabel">&mdash;</span>
+          <span id="goalPct">&mdash;</span>
+        </div>
+        <div class="goalTrack"><div class="goalFill" id="goalFill"></div></div>
+        <div class="goalFoot"><span id="goalFoot">&mdash;</span></div>
+      </div>
+
+      <!-- month calendar heatmap (opt-in: a tool, not audience content) -->
+      <div class="block cal" id="blkCalendar" hidden>
+        <div class="blockHead">
+          <span id="calLabel">MONTH</span>
+          <span class="headNote" id="calNote">&mdash;</span>
+        </div>
+        <div class="calDow" id="calDow"></div>
+        <div class="calGrid" id="calGrid"></div>
+      </div>
+
+      <!-- win-rate ring + equity candles on one line -->
+      <div class="dnRow">
+        <div class="block dn" id="blkDonut" hidden>
+          <div class="ringWrap">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle cx="60" cy="60" r="48" class="track"></circle>
+              <circle cx="60" cy="60" r="48" class="val" id="ringVal"
+                      transform="rotate(-90 60 60)"></circle>
+            </svg>
+            <span class="ringPct" id="ringPct">&mdash;</span>
+          </div>
+        </div>
+
+        <div class="block cd" id="blkCandles" hidden>
+          <svg id="candleSvg" viewBox="0 0 720 220" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+      </div>
+
+      <!-- equity curve, whole history -->
+      <div class="block" id="blkEquity" hidden>
+        <div class="blockHead">
+          <span id="eqLabel">EQUITY CURVE</span>
+          <span class="headNote" id="eqNote">&mdash;</span>
+        </div>
+        <svg viewBox="0 0 920 240" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="eqGradPos" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" style="stop-color:var(--pos);stop-opacity:.30"></stop>
+              <stop offset="100%" style="stop-color:var(--pos);stop-opacity:0"></stop>
+            </linearGradient>
+            <linearGradient id="eqGradNeg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" style="stop-color:var(--neg);stop-opacity:.30"></stop>
+              <stop offset="100%" style="stop-color:var(--neg);stop-opacity:0"></stop>
+            </linearGradient>
+          </defs>
+          <path id="eqArea" class="area pos" d=""></path>
+          <path id="eqLine" class="line pos" d=""></path>
+        </svg>
+      </div>
+
+      <!-- last-N sessions, signed bars -->
+      <div class="block" id="blkStrip" hidden>
+        <div class="blockHead">
+          <span id="stripLabel">LAST SESSIONS</span>
+          <span class="headNote" id="stripNote">&mdash;</span>
+        </div>
+        <div class="bars" id="stripBars"></div>
+        <div class="barAxis"><span id="stripFrom"></span><span id="stripTo"></span></div>
+      </div>
+
+      <!-- risk &amp; consistency -->
+      <div class="block risk" id="blkRisk" hidden>
+        <div class="tile">
+          <span class="k">DAY PF</span><span class="n zero" id="pfV">&mdash;</span>
+        </div>
+        <div class="tile">
+          <span class="k">MAX DD</span><span class="n zero" id="ddV">&mdash;</span>
+        </div>
+        <div class="tile">
+          <span class="k">SHARPE</span><span class="n zero" id="sharpeV">&mdash;</span>
+        </div>
+        <div class="tile">
+          <span class="k">R:R</span><span class="n zero" id="rrV">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="block risk risk2" id="blkRisk2" hidden>
+        <div class="tile span2">
+          <span class="k">GREEN DAYS</span><span class="n zero" id="greenV">&mdash;</span>
+        </div>
+        <div class="tile span2">
+          <span class="k">AVG DAY</span><span class="n zero" id="avgV">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="block lines" id="blkStreaks" hidden>
+        <span class="note" id="streakLine">&mdash;</span>
+      </div>
+
+      <div class="block lines" id="blkCost" hidden>
+        <span class="note" id="costLine">&mdash;</span>
+      </div>
+
+      <!-- 20-session sparkline (compact preset) -->
+      <div class="block spark" id="blkSpark" hidden>
+        <div class="sparkHead">
+          <span>LAST <b id="sessN">20</b> SESSIONS</span>
+          <span id="sparkNote">&mdash;</span>
+        </div>
+        <svg viewBox="0 0 920 200" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="gradPos" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" style="stop-color:var(--pos);stop-opacity:.34"></stop>
+              <stop offset="100%" style="stop-color:var(--pos);stop-opacity:0"></stop>
+            </linearGradient>
+            <linearGradient id="gradNeg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" style="stop-color:var(--neg);stop-opacity:.34"></stop>
+              <stop offset="100%" style="stop-color:var(--neg);stop-opacity:0"></stop>
+            </linearGradient>
+          </defs>
+          <path id="sparkArea" class="area pos" d=""></path>
+          <path id="sparkLine" class="line pos" d=""></path>
+        </svg>
+      </div>
+
+      <div class="block rows" id="blkRows">
+        <div class="row">
+          <button class="monthBtn" id="monthBtn" type="button" title="Pick a month">
+            <span class="mlabel">Month:</span> <span id="monthName">&mdash;</span><i class="caret">&#9662;</i>
+          </button>
+          <span class="v zero" id="mtdNet">&mdash;</span>
+          <span class="p zero" id="mtdPct">&mdash;</span>
+        </div>
+        <div class="row">
+          <span class="lbl" id="allLabel">ALL TIME</span>
+          <span class="v zero" id="allNet">&mdash;</span>
+          <span class="p zero" id="allPct">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="grow"></div>
+
+      <footer class="foot">
+        <span class="footBadge" id="footBadge"><span class="bAt" id="wmAt">@</span><span id="wmHandle">&mdash;</span></span>
+        <div class="disc">Personal trading journal. Not investment advice.</div>
+      </footer>
+    </section>
+  </div>
+</div>
+
+<!-- the month list lives OUTSIDE #stage on purpose: a transformed ancestor makes
+     position:fixed resolve against that element instead of the viewport -->
+<div class="monthMenu" id="monthMenu" hidden></div>
+
+<div id="bar">
+  <div class="grp">
+    <button data-period="day" class="active">DAY</button>
+    <button data-period="week">WEEK</button>
+    <button data-period="month">MONTH</button>
+    <button data-period="all">ALL</button>
+  </div>
+  <div class="grp">
+    <button id="prevDay" title="Previous session (&larr;)">&larr;</button>
+    <span id="dayLabel">&mdash;</span>
+    <button id="nextDay" title="Next session (&rarr;)">&rarr;</button>
+  </div>
+  <div class="grp">
+    <button data-format="story" class="active" title="1080x1920">9:16</button>
+    <button data-format="square" title="1080x1080">1:1</button>
+  </div>
+  <div class="grp">
+    <button id="detailBtn" title="Detail preset: compact / pro / analyst">PRO</button>
+  </div>
+  <div class="grp">
+    <select id="styleSel" title="Template (?style=)">
+      <option value="midnight">1 · Midnight</option>
+      <option value="paper">2 · Paper</option>
+      <option value="neon">3 · Neon</option>
+      <option value="bloom">4 · Bloom</option>
+      <option value="broadsheet">5 · Broadsheet</option>
+      <option value="minimal">6 · Minimal</option>
+    </select>
+    <button id="downloadBtn" class="primary">Download PNG</button>
+  </div>
+  <div id="hint"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="ithio.js"></script>
+<script src="ithio-story.js?v=23"></script>
+</body>
+</html>

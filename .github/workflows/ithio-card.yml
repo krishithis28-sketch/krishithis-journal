@@ -1,0 +1,54 @@
+name: ithio-card
+
+# Renders the daily Ithio card (1080x1920 + 1080x1080) from ithio-story.html and
+# commits the PNGs to cards/. Runs on GitHub — never on the trading VPS.
+on:
+  # Schedule is deliberately OFF until you enable it: uncomment the cron line
+  # and every weekday 15:40 IST will render the card and commit a PNG.
+  # schedule:
+  #   - cron: "10 10 * * 1-5"      # 15:40 IST (Mon-Fri), ~15 min after the bot's EOD write
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "As-of date (YYYY-MM-DD); blank = today IST"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ithio-card
+  cancel-in-progress: false
+
+jobs:
+  card:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1 || true
+          npm i --no-audit --no-fund playwright@1.47.2
+          npx playwright install --with-deps chromium
+
+      - name: Render card
+        env:
+          CARD_DATE: ${{ github.event.inputs.date }}
+        run: node tools/ithio-card.js
+
+      - name: Commit the PNGs
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add cards
+          if git diff --staged --quiet; then
+            echo "card unchanged — nothing to commit"
+          else
+            git commit -m "card: $(date -u +%Y-%m-%d) ithio"
+            git push
+          fi
