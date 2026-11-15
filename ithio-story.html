@@ -893,6 +893,12 @@
     padding: 8px 10px;
   }
   #bar select option { background: #14141c; color: #e5e7eb; }
+  #bar .backLink {
+    color: #e5e7eb; text-decoration: none; letter-spacing: .1em;
+    background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 8px; padding: 8px 12px;
+  }
+  #bar .backLink:hover { background: rgba(255, 255, 255, .16); }
   #dayLabel { min-width: 128px; text-align: center; font-variant-numeric: tabular-nums; }
   #hint { flex-basis: 100%; text-align: center; font-weight: 500; letter-spacing: 0;
           color: #9ca3af; min-height: 16px; }
@@ -1127,6 +1133,9 @@
 <div class="monthMenu" id="monthMenu" hidden></div>
 
 <div id="bar">
+  <div class="grp">
+    <a href="index.html" class="backLink" title="Back to the journal">&larr; Journal</a>
+  </div>
   <div class="grp">
     <button data-period="day" class="active">DAY</button>
     <button data-period="week">WEEK</button>

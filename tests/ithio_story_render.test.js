@@ -281,5 +281,11 @@ setTimeout(() => {
   assert.strictEqual(el('blkRisk2').hidden, true);
   el('card').clientHeight = 1920;
 
-  console.log('ithio story render: all tests passed');
+  /* the journal links to the card, and the card links back */
+const journalHtml = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+assert.ok(journalHtml.includes('href="ithio-story.html"'),
+  'the journal header should link to the share card');
+assert.ok(html.includes('href="index.html"'), 'the card should link back to the journal');
+
+console.log('ithio story render: all tests passed');
 }, 30);
